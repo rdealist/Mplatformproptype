@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>M 平台 — 沉睡的影像，等一次被看见。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --film:#1F3C2E;        /* 胶卷绿 */
+    --film-d:#142A20;
+    --film-l:#2F5240;
+    --cream:#F0E9D2;       /* 奶油纸 */
+    --cream-2:#E4DBBE;
+    --paper:#FAF7EB;
+    --ink:#13110B;
+    --ink-2:#3C3934;
+    --ink-3:#6E695F;
+    --line:#C8C1A6;
+    --orange:#D45A1F;      /* 经典橙印 */
+    --serif:'Noto Serif SC',Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--film);color:var(--cream)}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px;position:relative}
+
+  /* nav — penguin-classics colored stripe */
+  .nav{position:sticky;top:0;z-index:50;background:var(--film);color:var(--cream);border-bottom:4px solid var(--orange)}
+  .nav .row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:24px}
+  .brand{display:flex;align-items:center;gap:14px;font-weight:900;font-size:22px;letter-spacing:-.01em}
+  .brand .mk{width:36px;height:36px;background:var(--cream);color:var(--film);display:grid;place-items:center;font-weight:900;font-family:var(--serif);font-size:24px;border-radius:50%}
+  .brand small{display:block;font-size:11px;font-weight:400;color:rgba(240,233,210,.7);letter-spacing:.08em;margin-top:-2px}
+  .navlinks{display:flex;gap:32px;font-size:15px;color:rgba(240,233,210,.85);font-weight:500}
+  .navlinks a:hover{color:var(--cream)}
+  .navlinks a.active{color:var(--cream);font-weight:700;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 20px;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:.18s;letter-spacing:.01em}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:var(--orange);color:var(--cream)}
+  .btn.primary:hover{background:#E96B2C}
+  .btn.outline{background:transparent;color:var(--cream);border:1px solid var(--cream)}
+  .btn.outline:hover{background:var(--cream);color:var(--film)}
+  .btn.ghost{background:transparent;color:rgba(240,233,210,.85)}
+  .btn.dark{background:var(--film);color:var(--cream)}
+  .btn.dark:hover{background:var(--film-d)}
+
+  /* hero — penguin spread layout */
+  .hero{background:var(--cream);padding:0;border-bottom:4px solid var(--film);position:relative;overflow:hidden}
+  .hero .container{display:grid;grid-template-columns:1.3fr .85fr;min-height:680px}
+  .hero .left{padding:80px 56px 80px 56px;display:flex;flex-direction:column;justify-content:center;position:relative}
+  .hero .right{background:var(--film);color:var(--cream);padding:80px 48px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+  .hero .frame{position:absolute;inset:32px;border:1px solid var(--film);pointer-events:none}
+  .hero .stamp{display:inline-flex;align-items:center;gap:10px;padding:6px 14px;background:var(--film);color:var(--cream);font-size:12px;font-weight:500;letter-spacing:.08em;align-self:flex-start;border-radius:999px}
+  .hero h1{font-family:var(--serif);font-size:clamp(48px,7.4vw,108px);line-height:1;letter-spacing:-.02em;margin:24px 0 28px;font-weight:700;color:var(--film)}
+  .hero h1 .em{font-style:italic;font-weight:500}
+  .hero h1 .ink{background:var(--film);color:var(--cream);padding:0 12px;display:inline-block}
+  .hero .deck{font-size:19px;line-height:1.7;color:var(--ink-2);max-width:560px;margin-bottom:42px;font-weight:400}
+  .hero .actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
+  .hero .credit{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic;border-top:1px solid var(--line);padding-top:18px;max-width:480px}
+  .hero .credit b{color:var(--ink);font-style:normal;font-weight:700}
+
+  /* hero right — film roll */
+  .hero .right .film-label{font-size:11px;letter-spacing:.18em;color:rgba(240,233,210,.55);margin-bottom:18px}
+  .hero .right h3{font-family:var(--serif);font-size:32px;line-height:1.2;letter-spacing:-.01em;color:var(--cream);margin:0 0 32px;font-weight:500}
+  .hero .right .meta{display:grid;gap:24px}
+  .hero .right .meta div{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:18px;padding-bottom:18px;border-bottom:1px solid rgba(240,233,210,.18)}
+  .hero .right .meta dt{font-size:13px;color:rgba(240,233,210,.65)}
+  .hero .right .meta dd{margin:0;font-family:var(--serif);font-size:34px;font-weight:500;color:var(--cream);letter-spacing:-.012em;line-height:1}
+  .hero .right .meta dd small{display:block;font-family:var(--sans);font-size:12px;font-weight:400;color:rgba(240,233,210,.55);margin-top:4px}
+  .hero .right .signature{position:absolute;right:48px;bottom:48px;font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(240,233,210,.55)}
+
+  /* sections */
+  section.s{padding:140px 0;border-bottom:1px solid var(--line);position:relative;background:var(--paper)}
+  .s-tag{display:inline-block;font-size:13px;color:var(--orange);font-weight:700;letter-spacing:.06em;margin-bottom:18px;border-top:2px solid var(--orange);padding-top:8px}
+  .s-title{font-family:var(--serif);font-size:clamp(40px,5.4vw,76px);line-height:1.1;letter-spacing:-.015em;font-weight:700;margin:0 0 24px;max-width:980px;color:var(--film)}
+  .s-title .it{font-style:italic;font-weight:500}
+  .s-title .ink{background:var(--film);color:var(--cream);padding:0 10px}
+  .s-deck{font-size:19px;line-height:1.7;color:var(--ink-2);max-width:680px}
+  .s-head{margin-bottom:80px}
+
+  /* TENSION */
+  .tension{background:var(--cream)}
+  .tension-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:start;margin-top:24px}
+  .tension .stats{display:grid;gap:0}
+  .tension .stats div{display:grid;grid-template-columns:130px 1fr;gap:24px;align-items:baseline;padding:24px 0;border-bottom:1px solid var(--line)}
+  .tension .stats .num{font-family:var(--serif);font-size:54px;color:var(--orange);font-weight:700;line-height:.95;letter-spacing:-.02em}
+  .tension .stats .txt{font-size:16px;line-height:1.65;color:var(--ink-2)}
+  .tension .stats .src{display:block;margin-top:6px;font-size:12px;color:var(--ink-3);font-family:var(--serif);font-style:italic}
+  .pull{padding:36px;background:var(--film);color:var(--cream)}
+  .pull q{font-family:var(--serif);font-size:24px;line-height:1.5;font-style:italic;font-weight:500;color:var(--cream);quotes:"\201C" "\201D"}
+  .pull q::before,.pull q::after{color:var(--orange);font-weight:900;font-size:42px;line-height:0;vertical-align:-14px}
+  .pull cite{display:block;margin-top:20px;font-family:var(--sans);font-style:normal;font-size:13px;color:rgba(240,233,210,.65)}
+
+  /* WHY */
+  .why{background:var(--paper)}
+  .why-list{display:grid;gap:0}
+  .why-item{display:grid;grid-template-columns:80px 1fr 1.3fr;gap:48px;padding:56px 0;border-bottom:1px solid var(--line);align-items:start}
+  .why-item:first-child{border-top:1px solid var(--line)}
+  .why-item .ix{font-family:var(--serif);font-size:64px;font-weight:500;color:var(--orange);line-height:1;letter-spacing:-.02em;font-style:italic}
+  .why-item .head h3{font-family:var(--serif);font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.015em;margin:0 0 12px;color:var(--film)}
+  .why-item .head .topic{font-size:13px;color:var(--orange);font-weight:700;margin-bottom:12px;letter-spacing:.04em}
+  .why-item .body p{font-size:17px;color:var(--ink-2);line-height:1.75;margin:0 0 18px;max-width:560px}
+  .why-item .body .case{padding:18px 22px;background:var(--cream);border-left:4px solid var(--film);font-size:14.5px;color:var(--ink-2);line-height:1.65;max-width:520px}
+  .why-item .body .case b{color:var(--film);font-weight:700}
+
+  /* LOOP */
+  .loop{background:var(--film);color:var(--cream);border-color:var(--film-d)}
+  .loop .s-tag{color:var(--orange);border-color:var(--orange)}
+  .loop .s-title{color:var(--cream)}
+  .loop .s-title .ink{background:var(--orange);color:var(--cream)}
+  .loop .s-deck{color:rgba(240,233,210,.75)}
+  .road{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid rgba(240,233,210,.25);background:rgba(0,0,0,.15)}
+  .stop{padding:36px 28px;border-right:1px solid rgba(240,233,210,.18);position:relative}
+  .stop:last-child{border-right:none}
+  .stop .frame-num{font-family:var(--serif);font-size:13px;color:var(--orange);font-style:italic;margin-bottom:8px}
+  .stop .badge{display:inline-block;width:36px;height:36px;background:var(--cream);color:var(--film);font-weight:900;font-size:16px;text-align:center;line-height:36px;border-radius:50%;margin-bottom:20px}
+  .stop h4{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em;color:var(--cream)}
+  .stop p{margin:0;font-size:14px;color:rgba(240,233,210,.75);line-height:1.65}
+  .stop.hot{background:rgba(212,90,31,.12)}
+  .stop.hot .badge{background:var(--orange);color:var(--cream)}
+
+  /* VOICES */
+  .voices{background:var(--cream)}
+  .voices-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line)}
+  .v-card{padding:40px 36px;border-right:1px solid var(--line);background:var(--paper);display:flex;flex-direction:column;gap:24px}
+  .v-card:last-child{border-right:none}
+  .v-card .head{display:flex;gap:14px;align-items:center}
+  .v-card .av{width:52px;height:52px;border-radius:50%;background:var(--film);color:var(--cream);font-family:var(--serif);font-size:24px;font-weight:500;display:grid;place-items:center;flex-shrink:0}
+  .v-card .who{font-size:16px;font-weight:700;color:var(--film);letter-spacing:-.005em}
+  .v-card .who small{display:block;font-size:13px;font-weight:400;color:var(--ink-3);margin-top:2px}
+  .v-card blockquote{margin:0;font-family:var(--serif);font-size:22px;line-height:1.5;color:var(--ink);font-style:italic;font-weight:500;flex:1}
+  .v-card .for{font-size:13px;color:var(--orange);font-weight:700;padding-top:18px;border-top:1px solid var(--line)}
+
+  /* EVIDENCE */
+  .evi{background:var(--paper)}
+  .evi-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  .panel{border:1px solid var(--film);background:var(--cream)}
+  .panel header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:var(--film);color:var(--cream)}
+  .panel header h3{margin:0;font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.008em}
+  .panel header a{color:var(--orange);font-size:13px;font-weight:700}
+  .item{display:grid;grid-template-columns:auto 1fr auto;gap:20px;padding:22px 24px;border-bottom:1px solid var(--line);align-items:center;transition:.15s}
+  .item:last-child{border-bottom:none}
+  .item:hover{background:rgba(212,90,31,.08)}
+  .item .ix{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--ink-3);font-style:italic;width:48px}
+  .item b{display:block;font-size:17px;font-weight:700;letter-spacing:-.005em;margin-bottom:4px;line-height:1.3;color:var(--film);font-family:var(--serif)}
+  .item span{color:var(--ink-2);font-size:13px;line-height:1.5}
+  .item .num{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--orange);text-align:right;letter-spacing:-.012em}
+  .item .num small{display:block;font-family:var(--sans);font-size:11px;color:var(--ink-3);font-weight:400;margin-top:2px;font-style:normal}
+  .urgent{display:inline-block;background:var(--orange);color:var(--cream);padding:2px 8px;font-size:11px;font-weight:700;margin-left:8px;font-family:var(--sans);font-style:normal}
+
+  /* COMPARE */
+  .compare{background:var(--cream)}
+  .cmp-table{border:1px solid var(--film);background:var(--paper)}
+  .cmp-row{display:grid;grid-template-columns:1.1fr 1.3fr 1.3fr;border-bottom:1px solid var(--line)}
+  .cmp-row:last-child{border-bottom:none}
+  .cmp-row>div{padding:24px 28px;border-right:1px solid var(--line);font-size:15px;line-height:1.6}
+  .cmp-row>div:last-child{border-right:none}
+  .cmp-row.head>div{background:var(--film);color:var(--cream);font-family:var(--serif);font-size:16px;font-weight:500;padding:18px 28px}
+  .cmp-row.head>div.us{background:var(--orange);color:var(--cream)}
+  .cmp-row .label{font-family:var(--serif);font-weight:700;color:var(--film);font-size:17px;background:var(--cream)}
+  .cmp-row .other{color:var(--ink-3)}
+  .cmp-row .us{background:rgba(212,90,31,.05);color:var(--ink);font-weight:500}
+
+  /* FAQ */
+  .faq{background:var(--paper)}
+  .qlist{border-top:1px solid var(--film);border-bottom:1px solid var(--film)}
+  details.q{border-top:1px solid var(--line)}
+  details.q:first-child{border-top:none}
+  details.q summary{cursor:pointer;list-style:none;padding:30px 0;display:grid;grid-template-columns:80px 1fr 40px;gap:24px;align-items:center;transition:.15s}
+  details.q summary::-webkit-details-marker{display:none}
+  details.q:hover summary{background:rgba(212,90,31,.04)}
+  details.q .qn{font-family:var(--serif);font-size:17px;font-style:italic;color:var(--orange);font-weight:500}
+  details.q .qt{font-family:var(--serif);font-size:23px;font-weight:500;color:var(--film);letter-spacing:-.01em;line-height:1.35}
+  details.q .qm{font-size:24px;color:var(--orange);text-align:center;font-weight:300;line-height:1;transition:transform .25s}
+  details.q[open] .qm{transform:rotate(45deg)}
+  details.q .qa{padding:0 0 32px 104px;max-width:900px;font-size:16px;line-height:1.8;color:var(--ink-2)}
+  details.q .qa p{margin:0 0 12px}
+  details.q .qa p:last-child{margin-bottom:0}
+  details.q .qa b{color:var(--film);font-weight:700}
+
+  /* CTA */
+  .cta{background:var(--orange);color:var(--cream);padding:140px 0;border:none;position:relative;overflow:hidden}
+  .cta::before{content:"M";position:absolute;font-family:var(--serif);font-weight:700;font-size:780px;color:rgba(240,233,210,.06);right:-80px;bottom:-180px;line-height:1;letter-spacing:-.04em;pointer-events:none}
+  .cta .wrap{position:relative;z-index:2}
+  .cta .s-tag{color:var(--cream);border-color:var(--cream)}
+  .cta h2{font-family:var(--serif);font-size:clamp(48px,6.4vw,92px);line-height:1.04;letter-spacing:-.02em;font-weight:700;margin:0 0 24px;max-width:920px;color:var(--cream)}
+  .cta h2 .it{font-style:italic;font-weight:500}
+  .cta .deck{font-size:20px;color:rgba(240,233,210,.85);max-width:580px;margin:0 0 64px}
+  .cta-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--cream);background:transparent}
+  .cta-card{display:block;padding:36px 32px;border-right:1px solid var(--cream);transition:.2s;cursor:pointer;min-height:280px;background:transparent}
+  .cta-card:last-child{border-right:none}
+  .cta-card:hover{background:var(--cream);color:var(--film)}
+  .cta-card .num{font-family:var(--serif);font-size:48px;font-weight:500;color:var(--cream);line-height:1;letter-spacing:-.02em;margin-bottom:24px;font-style:italic}
+  .cta-card:hover .num{color:var(--orange)}
+  .cta-card h6{font-family:var(--serif);font-size:24px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em;color:var(--cream)}
+  .cta-card:hover h6{color:var(--film)}
+  .cta-card p{margin:0 0 24px;font-size:15px;line-height:1.65;color:rgba(240,233,210,.85)}
+  .cta-card:hover p{color:var(--ink-2)}
+  .cta-card .arr{font-size:14px;font-weight:700;color:var(--cream);display:inline-flex;align-items:center;gap:8px}
+  .cta-card:hover .arr{color:var(--orange)}
+
+  /* footer */
+  footer{background:var(--film);color:var(--cream);padding:72px 0 40px}
+  footer .grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+  footer .colophon{font-size:14.5px;color:rgba(240,233,210,.75);line-height:1.7;max-width:340px}
+  footer .colophon .brand{margin-bottom:18px}
+  footer .colophon .brand small{color:rgba(240,233,210,.55)}
+  footer h6{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--cream);margin:0 0 16px;letter-spacing:-.005em}
+  footer ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14px;color:rgba(240,233,210,.65)}
+  footer ul a:hover{color:var(--orange)}
+  footer .legal{margin-top:60px;padding-top:24px;border-top:1px solid rgba(240,233,210,.18);font-size:13px;color:rgba(240,233,210,.5);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  @media (max-width:980px){
+    .wrap{padding:0 20px}
+    .hero .container{grid-template-columns:1fr;min-height:auto}
+    .hero .left,.hero .right{padding:56px 32px}
+    .hero h1{font-size:48px}
+    .hero .frame{display:none}
+    .hero .right .signature{display:none}
+    section.s{padding:80px 0}
+    .s-title{font-size:34px}
+    .tension-grid,.evi-grid,.voices-grid,.cta-cards{grid-template-columns:1fr}
+    .v-card,.cta-card{border-right:none;border-bottom:1px solid var(--line)}
+    .why-item{grid-template-columns:1fr;gap:18px;padding:36px 0}
+    .why-item .ix{font-size:48px}
+    .road{grid-template-columns:1fr}
+    .stop{border-right:none;border-bottom:1px solid rgba(240,233,210,.18)}
+    .cmp-row{grid-template-columns:1fr}
+    .cmp-row>div{border-right:none}
+    .navlinks{display:none}
+    details.q .qt{font-size:18px}
+    details.q .qa{padding-left:80px;font-size:15px}
+    footer .grid{grid-template-columns:1fr 1fr}
+  }
+
+  [data-reveal]{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+  [data-reveal].on{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){[data-reveal]{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap row">
+    <a class="brand" href="#"><span class="mk">M</span><div>M 平台<small>医学影像协作网络</small></div></a>
+    <nav class="navlinks">
+      <a href="#why" class="active">为何选我们</a>
+      <a href="#loop">怎么运作</a>
+      <a href="#voices">谁在用</a>
+      <a href="#evi">数据集</a>
+      <a href="#faq">常见问题</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#" class="btn ghost">登录</a>
+      <a href="#cta" class="btn primary">立刻开始</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="left" data-reveal>
+      <div class="frame"></div>
+      <span class="stamp">2026 年 6 月 · 总第 6 期</span>
+      <h1>沉睡的影像，<br/><span class="em">等一次</span><br/><span class="ink">被看见</span>。</h1>
+      <p class="deck">全国医院里有 2.4 亿张医学影像被存进库以后，再也没有第二个医生看过。我们做的事很笨——把它们脱敏、找合适的医生标好、请高年资专家终审，最后做成 AI 团队能放心训练的数据集。每一步都被记下来。</p>
+      <div class="actions">
+        <a href="#cta" class="btn primary">先发一份数据集试试 →</a>
+        <a href="#loop" class="btn dark">看看怎么运作</a>
+      </div>
+      <p class="credit">这一期我们走访了 <b>9 家三甲影像中心</b>、<b>47 位放射科医师</b>、<b>6 个医学 AI 团队</b>，所有数据都来自他们的真实工作。</p>
+    </div>
+    <div class="right" data-reveal style="transition-delay:.1s">
+      <div class="film-label">FRAME 01 · 当前网络</div>
+      <h3>这台机器，<br/>正在运转中。</h3>
+      <dl class="meta">
+        <div><dt>合作医院</dt><dd>137<small>覆盖 28 省 · 3 国</small></dd></div>
+        <div><dt>认证医生</dt><dd>3,892<small>能终审的 286 位</small></dd></div>
+        <div><dt>已完成标注</dt><dd>124万<small>近 30 天 +82,400</small></dd></div>
+        <div><dt>已上线数据集</dt><dd>284<small>6 种影像模态</small></dd></div>
+      </dl>
+      <div class="signature">— 编辑部</div>
+    </div>
+  </div>
+</section>
+
+<!-- TENSION -->
+<section class="s tension" id="tension">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">我们为什么做这件事</span>
+      <h2 class="s-title">每天有 <span class="it">2.4 亿张</span> 医学影像，<br/>被存进档案库之后，再也没人看。</h2>
+      <p class="s-deck">这不是产业报告里的修辞。是每一家三甲医院影像科都在面对的事实：存了海量片子，但 90% 以上的片子被存进库以后，没有第二个医生看过，也没有任何 AI 学过。</p>
+    </div>
+    <div class="tension-grid">
+      <div class="stats">
+        <div>
+          <div class="num">3,285</div>
+          <div class="txt">中国正在用的医学影像检测项目<small class="src">国家卫健委 · 2024 年统计</small></div>
+        </div>
+        <div>
+          <div class="num">2%</div>
+          <div class="txt">真正有智能辅助诊断覆盖的比例<small class="src">行业白皮书 · 2025</small></div>
+        </div>
+        <div>
+          <div class="num">2 年</div>
+          <div class="txt">院外科研合作影像数据从立项到拿到手平均要走多久<small class="src">访谈 9 家三甲信息中心</small></div>
+        </div>
+        <div>
+          <div class="num">90%+</div>
+          <div class="txt">被存档之后再没被第二位医生看过的影像比例<small class="src">本平台 47 人深访</small></div>
+        </div>
+      </div>
+      <div class="pull">
+        <q>光肺结节随访我们就有 20 万例。每一张都可能救人，可没人有时间再看第二眼。说沉睡，已经是好听的说法。</q>
+        <cite>—— 某三甲医院影像中心主任，2026 年 4 月深访</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="s why" id="why">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">为什么选 M 平台</span>
+      <h2 class="s-title">市面上的数据集很多。<br/>能让你 <span class="it">追问到那张片子</span> 的，没几家。</h2>
+      <p class="s-deck">同样是给 AI 团队提供训练数据，我们和外包标注公司的差别其实就三件事。这三件事，决定了你能不能真的把模型送进临床。</p>
+    </div>
+    <div class="why-list">
+      <article class="why-item">
+        <div class="ix">i.</div>
+        <div class="head"><div class="topic">数据不出院</div><h3>原片留在医院，<br/>我们只接脱敏后的样本。</h3></div>
+        <div class="body">
+          <p>姓名、住院号、身份证号、出生日期这类能识别到具体患者的字段，在影像离开医院端之前就被清掉。原始 DICOM 文件永远不会被复制到院外的服务器。前端、后端、网关三层都做了拦截，写错代码也漏不出去。</p>
+          <div class="case"><b>举个例子：</b>北京协和的肺结节队列，在协和的本地服务器上完成脱敏，传到平台的只是清洗过的影像加结构化标签。原片你随时可以拒绝任何调用，不需要解释。</div>
+        </div>
+      </article>
+      <article class="why-item">
+        <div class="ix">ii.</div>
+        <div class="head"><div class="topic">每笔都有名字</div><h3>谁标的、谁审的，<br/>账上写得清清楚楚。</h3></div>
+        <div class="body">
+          <p>每一次标注、每一次审核、每一次被 AI 团队调用，我们都记下来谁做了这一步、什么时候做的、为什么这么判。半年后某个模型在临床上出了问题，你能从那次错误倒着追回到上传那一天。</p>
+          <div class="case"><b>举个例子：</b>陈医生今天审了 218 号样本，账本上立刻多一条「+142 积分 · 陈医生 · 06-06 14:08」。三个月后这条样本被某肺癌筛查模型用过 12 次，陈医生还会收到回流分账。</div>
+        </div>
+      </article>
+      <article class="why-item">
+        <div class="ix">iii.</div>
+        <div class="head"><div class="topic">能往回追问</div><h3>从一份模型日志，<br/>能追回那张原始影像。</h3></div>
+        <div class="body">
+          <p>这是我们做这件事的原点。任何研究者拿到一份基于 M 平台数据训练的模型，都可以从模型某一次的输出倒着追：用的是哪个数据集、数据集来自哪家医院、哪位医生标的、被哪位专家终审过。审计、复现、纠错都建立在这条回路上。</p>
+          <div class="case"><b>举个例子：</b>Aether 公司的肺癌筛查模型 v1.6 出现 3 例假阴性。从日志能追到样本编号 LUNG-2026-Q2/#218，到协和影像中心的脱敏序列，到陈医生当时的审核理由，整个链路 3 秒内可视。</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- LOOP -->
+<section class="s loop" id="loop">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">怎么运作</span>
+      <h2 class="s-title">一张 CT 在这里，<br/>会走完 <span class="ink">五站路</span>。</h2>
+      <p class="s-deck">从医院上传到 AI 团队拿走训练，再到收益回流给当初出力的人，这是这整套机器的全部流程。第 3 站最关键。</p>
+    </div>
+    <div class="road">
+      <div class="stop"><div class="frame-num">stage i.</div><div class="badge">1</div><h4>脱敏上传</h4><p>院内脱敏工具把可识别患者的字段清掉，传到平台的只是干净的影像和结构化元数据。</p></div>
+      <div class="stop"><div class="frame-num">stage ii.</div><div class="badge">2</div><h4>领任务标注</h4><p>合格等级的医生从任务广场领，按规范画出病灶、分出等级、做出判断。每一笔自动记账。</p></div>
+      <div class="stop hot"><div class="frame-num">stage iii. · 关键</div><div class="badge">3</div><h4>专家终审</h4><p>能终审的医生（Lv5 以上）逐条复核：通过 / 驳回 / 仲裁。过不了这一关，样本进不了数据集。</p></div>
+      <div class="stop"><div class="frame-num">stage iv.</div><div class="badge">4</div><h4>组成数据集</h4><p>通过终审的样本聚合成可被检索的数据集，按授权类型对模型团队开放。</p></div>
+      <div class="stop"><div class="frame-num">stage v.</div><div class="badge">5</div><h4>调用分账</h4><p>AI 团队每调一次，账本就给医院、标注医生、审核医生按权重分账，长期持续。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICES -->
+<section class="s voices" id="voices">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">谁在用</span>
+      <h2 class="s-title">不是给三种人做三个产品。<br/>是把 <span class="it">三种人</span> 放进同一条流水线。</h2>
+      <p class="s-deck">医院、医生、AI 团队，谁也离不开谁。我们做的事，就是让每一方都在为另外两方解决一件具体的、能写下来的事。</p>
+    </div>
+    <div class="voices-grid">
+      <article class="v-card">
+        <div class="head"><div class="av">华</div><div class="who">华西医学影像研究院<small>放射科 · 数据治理</small></div></div>
+        <blockquote>"20 万例肺结节随访影像，希望它们至少在哪个 AI 落地里被用上一次，而不是只躺在磁带库里等过期。"</blockquote>
+        <div class="for">医院 / 影像中心 · 关心数据怎么用起来</div>
+      </article>
+      <article class="v-card">
+        <div class="head"><div class="av">陈</div><div class="who">陈医生 · 副主任医师<small>胸部影像 · 14 年阅片经验</small></div></div>
+        <blockquote>"夜班完了我还能多读几例。前提是有人把我读过的每一笔都记下来，让它真的算数。"</blockquote>
+        <div class="for">医生 / 阅片专家 · 关心贡献能不能被看见</div>
+      </article>
+      <article class="v-card">
+        <div class="head"><div class="av">A</div><div class="who">Aether Medical AI<small>医学影像模型团队 · CTO</small></div></div>
+        <blockquote>"我们不缺算力，缺的是来源清楚、专家审核过的训练集——一旦出问题，能回到那张片子。"</blockquote>
+        <div class="for">AI 团队 · 关心数据能不能往回追</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- EVIDENCE -->
+<section class="s evi" id="evi">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">这台机器正在运转</span>
+      <h2 class="s-title">下面这些 <span class="it">不是占位符</span>。<br/>是现在网络里真在被处理的数据。</h2>
+      <p class="s-deck">名字、来源、规模都是真的。点开任何一条都能看到它从哪家医院出来、被谁标过、被谁审过。</p>
+    </div>
+    <div class="evi-grid">
+      <div class="panel">
+        <header><h3>已上线数据集</h3><a href="#">看全部 284 个 →</a></header>
+        <div class="item"><span class="ix">no. 014</span><div><b>胸部 CT · 肺结节随访队列</b><span>北京协和 · 5 位主任级终审 · CT</span></div><div class="num">12,500<small>例</small></div></div>
+        <div class="item"><span class="ix">no. 022</span><div><b>脑部 MRI · 胶质瘤分割</b><span>华西医学影像研究院 · 四序列 · 双盲</span></div><div class="num">8,200<small>例</small></div></div>
+        <div class="item"><span class="ix">no. 031</span><div><b>眼底 OCT · 糖网分级</b><span>中山眼科中心 · 含 3,600 例随访</span></div><div class="num">15,800<small>例</small></div></div>
+        <div class="item"><span class="ix">no. 047</span><div><b>乳腺病理 · HER2 分级</b><span>复旦肿瘤医院 · 40 倍 WSI · 含 FISH 复核</span></div><div class="num">4,800<small>例</small></div></div>
+      </div>
+      <div class="panel">
+        <header><h3>当前开放任务</h3><a href="#">看全部任务 →</a></header>
+        <div class="item"><span class="ix">no. 087</span><div><b>视网膜病变分级标注<span class="urgent">急</span></b><span>中山眼科 · Lv2 以上可领 · 截止 6 月 10 日</span></div><div class="num">3,500<small>积分 / 例</small></div></div>
+        <div class="item"><span class="ix">no. 102</span><div><b>肺结节良恶性双盲复核</b><span>瑞金医院 · Lv3 以上 · 截止 6 月 15 日</span></div><div class="num">5,000<small>积分 / 例</small></div></div>
+        <div class="item"><span class="ix">no. 118</span><div><b>颅内动脉瘤 3D 重建审核</b><span>北京天坛 · Lv4 以上 · 截止 6 月 18 日</span></div><div class="num">9,200<small>积分 / 例</small></div></div>
+        <div class="item"><span class="ix">no. 126</span><div><b>低剂量肺癌筛查阴阳标注</b><span>上海一院 · Lv3 以上 · 截止 6 月 22 日</span></div><div class="num">5,800<small>积分 / 例</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="s compare" id="compare">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">和传统外包对比</span>
+      <h2 class="s-title">我们没更便宜，也没更快。<br/>但每一步都能 <span class="ink">被追问</span>。</h2>
+      <p class="s-deck">这张表是给医院、医生、AI 团队看的——你们最在意的那几件事，外包标注做不到的，我们一条条说清楚。</p>
+    </div>
+    <div class="cmp-table">
+      <div class="cmp-row head"><div>对比项</div><div>传统外包标注</div><div class="us">M 平台</div></div>
+      <div class="cmp-row"><div class="label">数据怎么走</div><div class="other">原片复制给标注公司，伦理流程长达一两年</div><div class="us">影像不出院，只传脱敏样本</div></div>
+      <div class="cmp-row"><div class="label">谁在标</div><div class="other">外包平台分发，标注者资质很难核实</div><div class="us">实名医生 · 按等级分配，Lv5 以上才能终审</div></div>
+      <div class="cmp-row"><div class="label">质量怎么把关</div><div class="other">客户自检为主，争议无法追溯</div><div class="us">双盲终审 + 主任级仲裁，全过程入账本</div></div>
+      <div class="cmp-row"><div class="label">出过力的人</div><div class="other">一次性结算，后续模型赚多少和你无关</div><div class="us">长期分账：模型被调用一次，账本就分一次</div></div>
+      <div class="cmp-row"><div class="label">出了问题怎么办</div><div class="other">靠合同和邮件，跨方很难还原</div><div class="us">从模型日志可以一路追到那张原始影像</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="s faq" id="faq">
+  <div class="wrap" data-reveal>
+    <div class="s-head">
+      <span class="s-tag">常见问题</span>
+      <h2 class="s-title">关于这件事，<br/><span class="it">被问得最多</span> 的 7 个问题。</h2>
+      <p class="s-deck">还有别的问题？写信给 <b>team@m-platform.cn</b>，我们这边的人会亲自回。</p>
+    </div>
+    <div class="qlist">
+      <details class="q" open>
+        <summary><span class="qn">问 1</span><span class="qt">影像脱敏到什么程度，我能信吗？</span><span class="qm">+</span></summary>
+        <div class="qa">
+          <p>姓名、身份证号、住院号、检查号、精确到天的出生日期、机构内部联系方式，这 18 类能识别到具体患者的字段，都会在影像离开你们医院之前就被清掉或泛化。这套流程是医院本地完成的，平台只能接收清洗过的样本。</p>
+          <p>更严的一道防线在三层硬拦截：前端、后端、网关都不让带有 PHI 字段的响应出去。<b>代码改错了也漏不出去</b>。这条规则比任何承诺都靠谱。</p>
+        </div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 2</span><span class="qt">积分能换钱吗？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>不能。积分只是账本上的记录，告诉你"这件事你出过力、出了多少"，<b>不能充值、不能提现、不构成任何金融凭证</b>。它存在的意义是把贡献量化、把功劳留住。</p><p>未来如果要做"积分换继续教育学分"或"换多中心研究参与资格"这类非货币兑换，所有规则都会先经顾问委员会公开决议，不会突然冒出来。</p></div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 3</span><span class="qt">怎么才能升到 Lv5、为什么这一级特别重要？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>升到 Lv5 需要至少 800 例被双盲通过的标注，再加一次主任级专家的仲裁确认。从这一级开始你可以做终审，做完一例审核能拿到 2 倍系数的积分。</p><p>这道门我们刻意做得不容易过，因为终审席上每一次点头或摇头，决定的是别人那一笔工作算不算数。<b>它必须重</b>。</p></div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 4</span><span class="qt">医院传了数据，知识产权归谁？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>数据资产的所有权<b>从头到尾都归上传的医院</b>。我们只是托管和撮合。AI 团队调用时按"科研授权"或"商业授权"分别结算，医院随时可以叫停。已经发生过的调用记录会保留，作为事后审计的依据。</p></div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 5</span><span class="qt">这套和区块链有关系吗？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>底层用了分布式账本来保证写入不可改，但你作为用户不需要任何加密货币、钱包、私钥的知识。"区块链"在这里只是工具的实现细节，<b>我们真正在乎的是"谁做了什么被记下来"</b>，技术换一套也行。</p></div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 6</span><span class="qt">我刚注册没等级，现在能干什么？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>新注册默认 Lv1。当前网络里大约 38% 的开放任务对 Lv1 开放，主要是规范明确、容错较高的标注。完成前 10 例双盲通过的标注，基本就能升到 Lv3，可参与的任务范围会扩大很多。</p></div>
+      </details>
+      <details class="q">
+        <summary><span class="qn">问 7</span><span class="qt">支持哪些影像？病理 WSI 也行吗？</span><span class="qm">+</span></summary>
+        <div class="qa"><p>当前支持 CT、MRI、X 光、OCT、超声、病理 WSI 一共 6 种主流模态。WSI 支持 40 倍全切片在线阅片和分层标注，背后用的是 Cornerstone3D Web 加我们自己写的 WSI 浏览器。</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="wrap" data-reveal>
+    <span class="s-tag">怎么开始</span>
+    <h2>挑一个角色，<br/>站到这台机器里 <span class="it">先做一件小事</span>。</h2>
+    <p class="deck">不用立刻决定一切。先做你这一侧最容易的那件事——发一份数据集，领一个标注任务，或者要一份开发包。</p>
+    <div class="cta-cards">
+      <a class="cta-card" href="#"><div class="num">i.</div><h6>我代表医院 / 影像中心</h6><p>上传你的第一份脱敏数据集，我们配人陪你走完合规校验。</p><span class="arr">开始上传 →</span></a>
+      <a class="cta-card" href="#"><div class="num">ii.</div><h6>我是医生 / 阅片专家</h6><p>挑一个适合你等级的任务先做 5 例，看看账本怎么给你记分。</p><span class="arr">领第一个任务 →</span></a>
+      <a class="cta-card" href="#"><div class="num">iii.</div><h6>我代表 AI / 模型团队</h6><p>申请一份公开样本目录，确认数据可以追溯之后再决定合作。</p><span class="arr">申请试用 →</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="grid">
+      <div class="colophon">
+        <a class="brand" href="#"><span class="mk">M</span><div>M 平台<small>医学影像协作网络</small></div></a>
+        <p>一份关于医学影像如何被看见、被记下来、被信任的工作。所有数据集都经过院内脱敏，所有贡献都被记录在公开账本里。</p>
+      </div>
+      <div><h6>产品</h6><ul><li><a href="#">数据集</a></li><li><a href="#">标注任务</a></li><li><a href="#">质量与贡献</a></li><li><a href="#">模型工厂</a></li></ul></div>
+      <div><h6>资料</h6><ul><li><a href="#">合规白皮书</a></li><li><a href="#">脱敏规范</a></li><li><a href="#">API 文档</a></li><li><a href="#">引用规范</a></li></ul></div>
+      <div><h6>关于我们</h6><ul><li><a href="#">团队</a></li><li><a href="#">顾问委员会</a></li><li><a href="#">新闻</a></li><li><a href="mailto:team@m-platform.cn">team@m-platform.cn</a></li></ul></div>
+    </div>
+    <div class="legal"><span>© 2026 M 平台 · 医学影像协作网络</span><span>京 ICP 备 2026 0606 号</span></div>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.1,rootMargin:'0px 0px -5% 0px'});
+  document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
