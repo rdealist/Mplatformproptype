@@ -1,4 +1,4 @@
-import { Moon, Sun, Globe, Bell, Check, ChevronDown, User, LayoutDashboard, Settings, LogOut, Database, FileText, Briefcase, ShieldCheck, Trophy, Users, Upload } from "lucide-react";
+import { Moon, Sun, Globe, Bell, Check, ChevronDown, User, LayoutDashboard, Settings, LogOut, Database, FileText, Briefcase, ShieldCheck, Trophy, Users, Upload, Play, ShoppingBag, Key, Activity, BookOpen } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import { useLanguage, type Language } from "../i18n/context";
@@ -56,6 +56,7 @@ export function Navigation() {
   const [showDataAssetsMenu, setShowDataAssetsMenu] = useState(false);
   const [showEarnIncomeMenu, setShowEarnIncomeMenu] = useState(false);
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
+  const [showModelServiceMenu, setShowModelServiceMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     if (typeof window !== "undefined") {
@@ -85,6 +86,7 @@ export function Navigation() {
   const dataAssetsMenuRef = useRef<HTMLDivElement>(null);
   const earnIncomeMenuRef = useRef<HTMLDivElement>(null);
   const communityMenuRef = useRef<HTMLDivElement>(null);
+  const modelServiceMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -107,6 +109,10 @@ export function Navigation() {
       }
       if (communityMenuRef.current && !communityMenuRef.current.contains(event.target as Node)) {
         setShowCommunityMenu(false);
+      }
+      // @ts-ignore
+      if (modelServiceMenuRef.current && !modelServiceMenuRef.current.contains(event.target as Node)) {
+        setShowModelServiceMenu(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
@@ -177,6 +183,16 @@ export function Navigation() {
     setShowDataAssetsMenu(false);
     setShowEarnIncomeMenu(false);
     setShowCommunityMenu(false);
+  };
+
+  const toggleModelServiceMenu = () => {
+    setShowModelServiceMenu(!showModelServiceMenu);
+    setShowLanguageMenu(false);
+    setShowMessageMenu(false);
+    setShowDataAssetsMenu(false);
+    setShowEarnIncomeMenu(false);
+    setShowCommunityMenu(false);
+    setShowUserMenu(false);
   };
 
   const selectLanguage = (lang: Language) => {
@@ -250,6 +266,45 @@ export function Navigation() {
   const isModelServiceActive = location.pathname === "/model-service";
   const isEarnIncomeActive = location.pathname === "/task-market" || location.pathname === "/review-tasks";
   const isCommunityActive = location.pathname === "/ranking" || location.pathname === "/community";
+
+  // 模型服务子菜单
+  const modelServiceItems = [
+    { 
+      id: "home", 
+      label: "在线使用", 
+      icon: Play, 
+      path: "/model-service",
+      desc: "在线调试大模型，快速验证效果"
+    },
+    { 
+      id: "market", 
+      label: "模型广场", 
+      icon: ShoppingBag, 
+      path: "/model-service",
+      desc: "浏览模型能力，选择合适服务"
+    },
+    { 
+      id: "apikeys", 
+      label: "API Key 管理", 
+      icon: Key, 
+      path: "/model-service",
+      desc: "管理调用密钥，保障接入安全"
+    },
+    { 
+      id: "logs", 
+      label: "调用记录", 
+      icon: Activity, 
+      path: "/model-service",
+      desc: "查看调用明细，掌握用量状态"
+    },
+    { 
+      id: "docs", 
+      label: "帮助文档", 
+      icon: BookOpen, 
+      path: "/model-service",
+      desc: "查阅接入指南，快速完成调用"
+    },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 border-b border-black/[0.08] bg-white/80 backdrop-blur-xl">
@@ -358,17 +413,50 @@ export function Navigation() {
           </div>
 
           {/* 接入模型服务 */}
-          <Link
-            to="/model-service"
-            className={`relative py-1 transition-colors duration-200 hover:text-[#0071e3] ${
-              isModelServiceActive ? "text-[#0071e3]" : ""
-            }`}
-          >
-            接入模型服务
-            {isModelServiceActive && (
-              <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#0071e3]" />
+          <div className="relative" ref={modelServiceMenuRef}>
+            <button
+              onClick={toggleModelServiceMenu}
+              className={`relative flex items-center gap-1 py-1 text-sm font-normal leading-[1.57] transition-colors duration-200 hover:text-[#0071e3] ${
+                isModelServiceActive ? "text-[#0071e3]" : ""
+              }`}
+            >
+              接入模型服务
+              <ChevronDown className="h-4 w-4" strokeWidth={2} />
+              {isModelServiceActive && (
+                <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#0071e3]" />
+              )}
+            </button>
+
+            {showModelServiceMenu && (
+              <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl border border-black/[0.08] bg-white/95 backdrop-blur-xl py-3 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+                {modelServiceItems.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.id}
+                      to={`${item.path}?section=${item.id}`}
+                      onClick={() => setShowModelServiceMenu(false)}
+                      className={`group relative flex items-start gap-3 px-4 py-3 transition-all duration-200 ${
+                        index === 0 ? "" : "border-t border-black/[0.04]"
+                      } hover:bg-[#0071e3]/[0.04]`}
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#86868b] group-hover:bg-[#0071e3]/10 group-hover:text-[#0071e3] transition-all duration-200">
+                        <Icon className="h-4 w-4" strokeWidth={2} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors duration-200">
+                          {item.label}
+                        </div>
+                        <div className="mt-0.5 text-xs leading-[1.4] text-[#86868b]">
+                          {item.desc}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             )}
-          </Link>
+          </div>
 
           {/* 赚取专业收益下拉菜单 */}
           <div className="relative" ref={earnIncomeMenuRef}>
