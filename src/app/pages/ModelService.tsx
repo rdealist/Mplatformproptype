@@ -84,13 +84,14 @@ interface ModelEntry {
   name: string;
   vendor: string;
   logo?: string;
-  tags: string[];
+  priceInput: string;
+  priceOutput: string;
+  endpoints: string[];
   context: string;
-  latency: string;
-  permission: "available" | "restricted";
-  categories: ModelFilter[];
+  maxOutput: string;
   description?: string;
   isNew?: boolean;
+  categories: ModelFilter[];
 }
 
 interface ApiKeyEntry {
@@ -181,102 +182,110 @@ const capabilityCards: CapabilityCard[] = [
 
 const modelList: ModelEntry[] = [
   {
-    id: "gpt-5-image-mini",
-    name: "gpt-5-image-mini",
+    id: "gpt-5-5",
+    name: "openai/gpt-5.5",
     vendor: "OpenAI",
     logo: imgOpenAI,
-    tags: ["多模态", "轻量化", "高性能"],
-    context: "128K",
-    latency: "~180ms",
-    permission: "available",
-    categories: ["text", "multimodal", "fast"],
-    description: "下一代多模态轻量级模型，平衡了性能与响应速度，适用于大多数日常对话场景。",
+    priceInput: "0.8 Pts / 1K",
+    priceOutput: "2.4 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/chat/completions"],
+    context: "200K",
+    maxOutput: "8,192",
+    categories: ["text", "multimodal"],
+    description: "OpenAI 旗舰级模型，具备顶尖的推理与多模态理解能力。",
     isNew: true,
   },
   {
-    id: "qwen-max-latest",
-    name: "qwen-max-latest",
-    vendor: "Qwen",
-    logo: imgQwen,
-    tags: ["通用对话", "工具调用"],
-    context: "128K",
-    latency: "~420ms",
-    permission: "available",
-    categories: ["text", "fast"],
-    description: "通义千问旗舰级模型，具备极强的逻辑推理与长文本理解能力，支持复杂的插件调用。",
-  },
-  {
-    id: "claude-3-5-sonnet",
-    name: "claude-3-5-sonnet",
+    id: "claude-4-8-fast",
+    name: "anthropic/claude-opus-4.8-fast",
     vendor: "Anthropic",
     logo: imgAnthropic,
-    tags: ["代码生成", "长文本推理"],
-    context: "200K",
-    latency: "~520ms",
-    permission: "available",
+    priceInput: "1.2 Pts / 1K",
+    priceOutput: "3.6 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/messages"],
+    context: "250K",
+    maxOutput: "4,096",
     categories: ["text", "code"],
-    description: "最智能的 Claude 模型，在代码编写、创意写作和深度分析方面表现卓越。",
+    description: "最智能的 Claude 模型，在医疗科研及复杂推理中表现卓越。",
     isNew: true,
   },
   {
-    id: "deepseek-v3",
-    name: "deepseek-v3",
-    vendor: "DeepSeek",
-    logo: imgDeepseek,
-    tags: ["深度推理", "逻辑思考"],
-    context: "64K",
-    latency: "~1.2s",
-    permission: "available",
-    categories: ["text"],
-    description: "专为复杂推理任务设计的深度思考模型，在数学、逻辑及编程竞赛题目中表现优异。",
+    id: "gpt-5-4-mini",
+    name: "openai/gpt-5.4-mini",
+    vendor: "OpenAI",
+    logo: imgOpenAI,
+    priceInput: "0.01 Pts / 1K",
+    priceOutput: "0.03 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/chat/completions"],
+    context: "128K",
+    maxOutput: "4,096",
+    categories: ["text", "fast"],
+    description: "超高性价比模型，适用于大规模数据标注及低延迟交互。",
   },
   {
-    id: "gemini-3.5-flash",
-    name: "gemini-3.5-flash",
+    id: "gemini-3-5-flash",
+    name: "google/gemini-3.5-flash",
     vendor: "Google",
     logo: imgGemini,
-    tags: ["极速响应", "视频理解"],
+    priceInput: "0.05 Pts / 1K",
+    priceOutput: "0.15 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/stream"],
     context: "1M",
-    latency: "~280ms",
-    permission: "available",
+    maxOutput: "8,192",
     categories: ["multimodal", "fast"],
-    description: "谷歌推出的超低延迟多模态模型，支持百万级上下文窗口，尤其擅长视频理解。",
+    description: "谷歌推出的超低延迟多模态模型，支持百万级上下文窗口。",
   },
   {
-    id: "mistral-large-2",
-    name: "mistral-large-2",
-    vendor: "Mistral",
-    logo: imgMistral,
-    tags: ["高效", "多语言"],
-    context: "128K",
-    latency: "~380ms",
-    permission: "available",
+    id: "claude-4-7-fast",
+    name: "anthropic/claude-opus-4.7-fast",
+    vendor: "Anthropic",
+    logo: imgAnthropic,
+    priceInput: "1.0 Pts / 1K",
+    priceOutput: "3.0 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/messages"],
+    context: "200K",
+    maxOutput: "4,096",
     categories: ["text"],
-    description: "来自 Mistral AI 的旗舰级多语言模型，在欧洲语言处理及效率方面具有独特优势。",
+    description: "高性能推理模型，平衡了响应速度与逻辑深度。",
   },
   {
-    id: "llama-3-3-70b",
-    name: "llama-3-3-70b",
-    vendor: "Meta",
-    logo: imgLlama,
-    tags: ["开源之最", "多场景"],
+    id: "glm-5-1",
+    name: "z-ai/glm-5.1",
+    vendor: "Z.ai",
+    logo: imgDeepseek,
+    priceInput: "0.1 Pts / 1K",
+    priceOutput: "0.3 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/glm/chat"],
     context: "128K",
-    latency: "~450ms",
-    permission: "available",
+    maxOutput: "4,096",
     categories: ["text"],
-    description: "目前最强大的开源模型之一，生态系统完善，适合各种私有化部署和微调任务。",
+    description: "智谱 AI 核心模型，针对中文医疗语义有深度优化。",
   },
   {
-    id: "yi-lightning",
-    name: "yi-lightning",
-    vendor: "零一万物",
+    id: "qwen-3-7-plus",
+    name: "qwen/qwen3.7-plus",
+    vendor: "Qwen",
+    logo: imgQwen,
+    priceInput: "0.2 Pts / 1K",
+    priceOutput: "0.6 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/qwen/chat"],
+    context: "128K",
+    maxOutput: "8,192",
+    categories: ["text", "code"],
+    description: "通义千问最新增强版，在代码编写及长文本理解方面能力出众。",
+  },
+  {
+    id: "minimax-m3",
+    name: "MiniMax-M3",
+    vendor: "MiniMax",
     logo: imgYi,
-    tags: ["快速响应", "中文增强"],
-    context: "32K",
-    latency: "~150ms",
-    permission: "available",
+    priceInput: "0.15 Pts / 1K",
+    priceOutput: "0.45 Pts / 1K",
+    endpoints: ["https://api.imedloop.com/v1/minimax/completions"],
+    context: "64K",
+    maxOutput: "2,048",
     categories: ["text", "fast"],
-    description: "零一万物出品的极速模型，针对中文语境深度优化，响应速度快如闪电。",
+    description: "MiniMax 旗舰模型，擅长角色扮演与高保真语义生成。",
   },
 ];
 
@@ -285,7 +294,7 @@ const apiKeysList: ApiKeyEntry[] = [
     id: "1",
     name: "科研项目 A - 调试",
     key: "sk-imedloop-••••••••••••4a2b",
-    usage: "¥ 124.50",
+    usage: "12,450 Pts",
     createdAt: "2026-05-12 14:20",
     status: "active",
   },
@@ -293,7 +302,7 @@ const apiKeysList: ApiKeyEntry[] = [
     id: "2",
     name: "临床数据处理 - 生产",
     key: "sk-imedloop-••••••••••••9e8f",
-    usage: "¥ 1,280.00",
+    usage: "128,000 Pts",
     createdAt: "2026-06-01 09:15",
     status: "active",
   },
@@ -301,7 +310,7 @@ const apiKeysList: ApiKeyEntry[] = [
     id: "3",
     name: "旧版测试 Key",
     key: "sk-imedloop-••••••••••••1c2d",
-    usage: "¥ 0.00",
+    usage: "0 Pts",
     createdAt: "2026-04-20 11:45",
     status: "revoked",
   },
@@ -319,7 +328,7 @@ const callLogsList: CallLogEntry[] = [
     firstToken: "180ms",
     input: "240",
     output: "1,204",
-    cost: "¥ 0.12",
+    cost: "0.12 Pts",
     ip: "192.168.1.104",
     status: "success",
   },
@@ -334,7 +343,7 @@ const callLogsList: CallLogEntry[] = [
     firstToken: "-",
     input: "4,200",
     output: "-",
-    cost: "¥ 0.04",
+    cost: "0.04 Pts",
     ip: "10.0.42.12",
     status: "success",
   },
@@ -349,7 +358,7 @@ const callLogsList: CallLogEntry[] = [
     firstToken: "520ms",
     input: "1,240",
     output: "4,820",
-    cost: "¥ 0.85",
+    cost: "0.85 Pts",
     ip: "192.168.1.104",
     status: "success",
   },
@@ -364,7 +373,7 @@ const callLogsList: CallLogEntry[] = [
     firstToken: "190ms",
     input: "560",
     output: "0",
-    cost: "¥ 0.00",
+    cost: "0.00 Pts",
     ip: "192.168.1.104",
     status: "error",
   },
@@ -379,7 +388,7 @@ const callLogsList: CallLogEntry[] = [
     firstToken: "-",
     input: "Prompt...",
     output: "1 img",
-    cost: "¥ 0.35",
+    cost: "0.35 Pts",
     ip: "114.12.3.4",
     status: "success",
   },
@@ -433,7 +442,8 @@ export default function ModelService() {
   const sectionFromParam = searchParams.get("section") as SidebarSection;
   
   const [activeSection, setActiveSection] = useState<SidebarSection>(sectionFromParam || "home");
-  const [selectedModel, setSelectedModel] = useState("gpt-5-image-mini");
+  const [selectedModel, setSelectedModel] = useState("gpt-5-5");
+  const [detailModelId, setDetailModelId] = useState<string | null>(null);
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(4096);
   const [topP, setTopP] = useState(1.0);
@@ -492,7 +502,7 @@ export default function ModelService() {
         ...prev,
         {
           role: "ai",
-          content: `**[${currentModel.name}]** 已收到您的请求。\n\n根据您的输入："${text}"\n\n以下是模拟生成的响应内容：\n\n1. 模型已成功接收 Prompt 并完成上下文分析。\n2. Temperature 设置为 ${temperature}，输出风格偏向${temperature < 0.5 ? "精确稳定" : temperature < 1.2 ? "平衡自然" : "富有创意"}。\n3. 当前上下文窗口：${currentModel.context}，延迟预估：${currentModel.latency}。\n\n如需集成到您的业务系统，可查看右侧配置面板中的 SDK 调用示例。`,
+          content: `**[${currentModel.name}]** 已收到您的请求。\n\n根据您的输入："${text}"\n\n以下是模拟生成的响应内容：\n\n1. 模型已成功接收 Prompt 并完成上下文分析。\n2. Temperature 设置为 ${temperature}，输出风格偏向${temperature < 0.5 ? "精确稳定" : temperature < 1.2 ? "平衡自然" : "富有创意"}。\n3. 当前上下文窗口：${currentModel.context}，最大输出：${currentModel.maxOutput}。\n\n如需集成到您的业务系统，可查看“详情”页面中的 API 端点信息。`,
         },
       ]);
     }, 1800);
@@ -525,6 +535,154 @@ export default function ModelService() {
 
   return (
     <div className="relative flex h-[calc(100vh-44px)] overflow-hidden bg-[#fbfbfd] text-[#1d1d1f] p-4 gap-4">
+      {/* ── Model Detail Drawer ── */}
+      <AnimatePresence>
+        {detailModelId && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/5 backdrop-blur-sm"
+              onClick={() => setDetailModelId(null)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 bottom-0 z-[101] w-full max-w-xl bg-white shadow-[-16px_0_64px_rgba(0,0,0,0.08)] border-l border-black/[0.04] flex flex-col"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-8 py-8 border-b border-black/[0.04] bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl bg-[#0071e3]/[0.05] flex items-center justify-center border border-[#0071e3]/10">
+                    <Cpu className="h-7 w-7 text-[#0071e3]" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight text-[#1d1d1f] leading-tight">
+                      {modelList.find(m => m.id === detailModelId)?.name}
+                    </h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="px-2 py-0.5 rounded bg-black text-white text-[9px] font-bold uppercase tracking-wider">
+                        {modelList.find(m => m.id === detailModelId)?.vendor}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setDetailModelId(null)}
+                  className="h-10 w-10 rounded-full bg-black/[0.04] flex items-center justify-center text-[#1d1d1f] hover:bg-black/[0.08] transition-all"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide-default">
+                {/* Intro */}
+                <section>
+                  <p className="text-sm text-[#424245] leading-relaxed font-medium">
+                    {modelList.find(m => m.id === detailModelId)?.description}
+                  </p>
+                </section>
+
+                {/* Pricing Section */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-[#0071e3]" />
+                    <h3 className="text-sm font-bold text-[#1d1d1f]">消耗标准</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="rounded-[24px] bg-[#f5f5f7] p-5 border border-black/[0.02] flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">输入消耗 (Input)</span>
+                      <span className="text-sm font-bold text-[#1d1d1f]">
+                        {modelList.find(m => m.id === detailModelId)?.priceInput}
+                      </span>
+                    </div>
+                    <div className="rounded-[24px] bg-[#f5f5f7] p-5 border border-black/[0.02] flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">输出消耗 (Output)</span>
+                      <span className="text-sm font-bold text-[#1d1d1f]">
+                        {modelList.find(m => m.id === detailModelId)?.priceOutput}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Technical Specs */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-[#34c759]" />
+                    <h3 className="text-sm font-bold text-[#1d1d1f]">技术参数</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-black/[0.04] p-4 flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">上下文窗口</span>
+                      <span className="text-xs font-bold text-[#1d1d1f]">{modelList.find(m => m.id === detailModelId)?.context}</span>
+                    </div>
+                    <div className="rounded-2xl border border-black/[0.04] p-4 flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">最大输出</span>
+                      <span className="text-xs font-bold text-[#1d1d1f]">{modelList.find(m => m.id === detailModelId)?.maxOutput}</span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Endpoints */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-[#ff9500]" />
+                    <h3 className="text-sm font-bold text-[#1d1d1f]">接口端点</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {modelList.find(m => m.id === detailModelId)?.endpoints.map((endpoint, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-2xl bg-[#f5f5f7] border border-black/[0.03] p-4 group">
+                        <code className="text-[10px] font-mono text-[#1d1d1f] truncate flex-1 pr-4">{endpoint}</code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(endpoint);
+                            toast.success("已复制端点");
+                          }}
+                          className="p-1.5 rounded-lg text-[#86868b] hover:bg-black/[0.05] hover:text-[#0071e3] transition-all"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+
+              {/* Sticky Footer */}
+              <div className="p-8 border-t border-black/[0.04] bg-white/80 backdrop-blur-md flex gap-3">
+                <button 
+                  onClick={() => {
+                    const m = modelList.find(m => m.id === detailModelId);
+                    if (m) {
+                      setSelectedModel(m.id);
+                      handleSectionChange("home");
+                      setDetailModelId(null);
+                      toast.success(`已切换至: ${m.name}`);
+                    }
+                  }}
+                  className="flex-1 px-6 py-4 rounded-2xl bg-[#0071e3] text-white text-xs font-bold hover:bg-[#0071e3]/90 transition-all shadow-[0_4px_16px_rgba(0,113,227,0.2)]"
+                >
+                  激活并在线试用
+                </button>
+                <button 
+                  onClick={() => {
+                    setDetailModelId(null);
+                    handleSectionChange("docs");
+                  }}
+                  className="px-6 py-4 rounded-2xl bg-black/[0.04] text-[#1d1d1f] text-xs font-bold hover:bg-black/[0.08] transition-all"
+                >
+                  接入文档
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <style dangerouslySetInnerHTML={{ __html: `
         .scrollbar-hide-default::-webkit-scrollbar { width: 4px; }
         .scrollbar-hide-default::-webkit-scrollbar-track { background: transparent; }
@@ -886,12 +1044,9 @@ export default function ModelService() {
                           )}
                         </div>
 
-                        <div className="flex flex-wrap gap-1.5 mt-auto px-0.5">
-                          {model.tags.map((tag) => (
-                            <span key={tag} className="px-2 py-0.5 rounded-lg bg-[#f5f5f7] text-[9px] font-bold text-[#86868b] border border-black/[0.02]">
-                              {tag}
-                            </span>
-                          ))}
+                        <div className="flex flex-col gap-1 mt-auto">
+                          <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">起步价</span>
+                          <span className="text-[11px] font-bold text-[#0071e3]">{model.priceInput}</span>
                         </div>
                       </button>
                     ))}
@@ -947,66 +1102,45 @@ export default function ModelService() {
                       whileHover={{ y: -4 }}
                       className="group relative flex flex-col rounded-[32px] border border-black/[0.06] bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-[#0071e3]/20"
                     >
-                      {model.isNew && (
-                        <div className="absolute top-4 right-4 rounded-full bg-[#34c759]/10 px-3 py-1 text-[9px] font-bold text-[#34c759] uppercase tracking-wider">
-                          New
-                        </div>
-                      )}
-                      
                       <div className="flex items-start gap-5 mb-6">
                         <div className="h-14 w-14 rounded-2xl bg-[#fbfbfd] border border-black/[0.04] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#0071e3]/30 transition-all">
                           <Cpu className="h-7 w-7 text-[#0071e3]" strokeWidth={1.5} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-base font-bold text-[#1d1d1f] truncate tracking-tight">{model.name}</h3>
-                            <span className="px-2 py-0.5 rounded-md bg-black/[0.04] text-[9px] font-bold text-[#86868b] uppercase tracking-wider">{model.vendor}</span>
-                          </div>
+                          <h3 className="text-base font-bold text-[#1d1d1f] leading-tight break-words mb-2">{model.name}</h3>
                           <p className="text-xs text-[#86868b] leading-relaxed line-clamp-2 font-medium">
                             {model.description}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mb-8">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#f5f5f7] border border-black/[0.02]">
-                          <MessageSquare className="h-3.5 w-3.5 text-[#86868b]" />
-                          <span className="text-[10px] font-bold text-[#1d1d1f]">{model.context} Context</span>
+                      <div className="flex flex-col gap-2 mb-4 bg-[#f5f5f7] rounded-[24px] p-4 border border-black/[0.02]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-[#86868b]">输入价格</span>
+                          <span className="text-[11px] font-bold text-[#1d1d1f]">{model.priceInput}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#f5f5f7] border border-black/[0.02]">
-                          <Clock className="h-3.5 w-3.5 text-[#86868b]" />
-                          <span className="text-[10px] font-bold text-[#1d1d1f]">{model.latency} Latency</span>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-[#86868b]">输出价格</span>
+                          <span className="text-[11px] font-bold text-[#1d1d1f]">{model.priceOutput}</span>
                         </div>
-                        {model.tags.map((tag) => (
-                          <span key={tag} className="px-3 py-1.5 rounded-xl bg-[#0071e3]/[0.03] text-[10px] font-bold text-[#0071e3] border border-[#0071e3]/5">
-                            {tag}
-                          </span>
-                        ))}
                       </div>
 
-                      <div className="mt-auto flex items-center justify-between gap-4 pt-5 border-t border-black/[0.04]">
-                        <div className="flex items-center gap-2 px-1">
-                          <span className="h-2 w-2 rounded-full bg-[#34c759] shadow-[0_0_8px_rgba(52,199,89,0.4)] animate-pulse" />
-                          <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">在线运行</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => handleSectionChange("docs")}
-                            className="px-4 py-2 rounded-xl text-[11px] font-bold text-[#86868b] hover:bg-black/[0.04] transition-all"
-                          >
-                            文档
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setSelectedModel(model.id);
-                              handleSectionChange("home");
-                              toast.success(`已切换至模型: ${model.name}`);
-                            }}
-                            className="px-6 py-2 rounded-xl bg-[#0071e3] text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(0,113,227,0.2)] hover:opacity-95 hover:scale-[1.05] active:scale-[0.98] transition-all"
-                          >
-                            立即试用
-                          </button>
-                        </div>
+                      <div className="flex flex-wrap items-center gap-2 mb-8 px-1">
+                        <span className="px-2 py-0.5 rounded-md bg-black/[0.04] text-[9px] font-bold text-[#86868b] uppercase tracking-wider">{model.vendor}</span>
+                        {model.isNew && (
+                          <span className="rounded-full bg-[#34c759]/10 px-2 py-0.5 text-[9px] font-bold text-[#34c759] uppercase tracking-wider">
+                            New
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-auto pt-5 border-t border-black/[0.04]">
+                        <button 
+                          onClick={() => setDetailModelId(model.id)}
+                          className="w-full px-6 py-3 rounded-xl bg-black/[0.04] text-[11px] font-bold text-[#1d1d1f] hover:bg-black/[0.08] active:scale-[0.98] transition-all"
+                        >
+                          查看详情
+                        </button>
                       </div>
                     </motion.div>
                   ))}
@@ -1038,59 +1172,60 @@ export default function ModelService() {
                 </div>
 
                 {/* Metric Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {[
-                    { label: "积分余额", value: "¥ 2,840.50", icon: CreditCard, color: "#0071e3", trend: "+120.00", trendIcon: ArrowUpRightIcon },
-                    { label: "本月消耗", value: "¥ 420.12", icon: BarChart2, color: "#5856d6", trend: "-5.2%", trendIcon: ArrowDownRight },
-                    { label: "今日调用", value: "1,204", icon: Activity, color: "#34c759", trend: "+24.8%", trendIcon: ArrowUpRightIcon },
-                    { label: "异常调用", value: "2", icon: AlertCircle, color: "#ff3b30", trend: "0", trendIcon: Check },
+                    { label: "余额", value: "284,050.5 Pts", icon: CreditCard },
+                    { label: "本月消耗", value: "4,201.2 Pts", icon: BarChart2 },
+                    { label: "今日调用", value: "1,204 次", icon: Activity },
+                    { label: "异常调用", value: "2 次", icon: AlertCircle },
                   ].map((card, i) => (
-                    <div key={i} className="rounded-[32px] border border-black/[0.06] bg-white p-6 shadow-sm hover:shadow-md transition-all group">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`h-10 w-10 rounded-[14px] flex items-center justify-center bg-opacity-10`} style={{ backgroundColor: `${card.color}1A` }}>
-                          <card.icon className="h-5 w-5" style={{ color: card.color }} />
+                    <div key={i} className="rounded-[24px] border border-black/[0.05] bg-white p-5 shadow-sm hover:shadow-md transition-all group">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-8 w-8 rounded-[10px] flex items-center justify-center bg-[#0071e3]/[0.06]">
+                          <card.icon className="h-4 w-4 text-[#0071e3]" />
                         </div>
-                        <button className="p-1.5 rounded-lg text-[#86868b] opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#86868b]">{card.label}</p>
                       </div>
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#86868b] mb-1">{card.label}</p>
-                      <div className="flex items-end justify-between">
-                        <h3 className="text-2xl font-bold text-[#1d1d1f] tracking-tight">{card.value}</h3>
-                        <div className={`flex items-center gap-1 text-[11px] font-bold ${i === 3 ? "text-[#86868b]" : i === 1 ? "text-[#ff3b30]" : "text-[#34c759]"}`}>
-                          <card.trendIcon className="h-3 w-3" />
-                          {card.trend}
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-bold text-[#1d1d1f] tracking-tight">{card.value}</h3>
                     </div>
                   ))}
                 </div>
 
                 {/* Filters */}
                 <div className="flex flex-wrap items-center gap-4 bg-white/50 backdrop-blur-sm p-4 rounded-[24px] border border-black/[0.04]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#86868b]" />
-                    <input 
-                      type="text" 
-                      placeholder="搜索 Request ID / IP..." 
-                      className="h-10 w-64 rounded-xl border border-black/[0.08] bg-white pl-9 pr-4 text-xs font-medium outline-none focus:border-[#0071e3]/40 transition-all"
-                    />
+                  <div className="flex-1 min-w-[300px] flex items-center gap-3">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#86868b]" />
+                      <input 
+                        type="text" 
+                        placeholder="搜索 Request ID / API Key / Token 名称..." 
+                        className="h-10 w-full rounded-xl border border-black/[0.08] bg-white pl-9 pr-4 text-xs font-medium outline-none focus:border-[#0071e3]/40 transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#86868b]" />
+                      <input 
+                        type="date" 
+                        className="h-10 rounded-xl border border-black/[0.08] bg-white pl-9 pr-4 text-xs font-medium outline-none focus:border-[#0071e3]/40 transition-all"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <select className="h-10 rounded-xl border border-black/[0.08] bg-white px-3 text-xs font-medium outline-none appearance-none pr-8 relative cursor-pointer hover:border-black/[0.15] transition-all">
                       <option>所有模型</option>
-                      <option>gpt-5-image-mini</option>
-                      <option>claude-3-5-sonnet</option>
-                      <option>qwen-max</option>
+                      {modelList.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
                     </select>
                     <select className="h-10 rounded-xl border border-black/[0.08] bg-white px-3 text-xs font-medium outline-none appearance-none pr-8 relative cursor-pointer hover:border-black/[0.15] transition-all">
-                      <option>近 24 小时</option>
-                      <option>近 7 天</option>
-                      <option>近 30 天</option>
+                      <option>所有 API Key</option>
+                      {apiKeysList.map(k => (
+                        <option key={k.id} value={k.id}>{k.name}</option>
+                      ))}
                     </select>
                     <button className="flex items-center gap-2 h-10 px-4 rounded-xl border border-black/[0.08] bg-white text-xs font-bold text-[#1d1d1f] hover:bg-black/[0.02] transition-all">
                       <Filter className="h-4 w-4" />
-                      高级筛选
+                      更多
                     </button>
                   </div>
                 </div>
@@ -1103,15 +1238,13 @@ export default function ModelService() {
                         <tr className="border-b border-black/[0.04] bg-black/[0.01]">
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">调用时间</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">Token 名称</th>
-                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">所属团队</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">类型</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">调用模型</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">总耗时/首字</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">输入</th>
                           <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">输出</th>
-                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">费用</th>
-                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">IP 地址</th>
-                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b] text-center">操作</th>
+                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b] text-right">金额</th>
+                          <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b] text-center">状态</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-black/[0.03]">
@@ -1125,9 +1258,6 @@ export default function ModelService() {
                                 <Key className="h-3 w-3 text-[#86868b]" />
                                 <span className="text-[11px] font-bold text-[#1d1d1f] truncate max-w-[120px]">{log.tokenName}</span>
                               </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-[11px] font-medium text-[#86868b]">{log.group}</span>
                             </td>
                             <td className="px-6 py-4">
                               <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
@@ -1156,19 +1286,16 @@ export default function ModelService() {
                             <td className="px-6 py-4">
                               <span className="text-[11px] font-bold text-[#1d1d1f]">{log.output}</span>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className="text-[11px] font-bold text-[#0071e3]">{log.cost}</span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-[11px] text-[#86868b] font-mono">{log.ip}</span>
+                            <td className="px-6 py-4 text-right">
+                              <span className="text-[11px] font-bold text-[#1d1d1f]">{log.cost}</span>
                             </td>
                             <td className="px-6 py-4 text-center">
-                              <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 rounded-xl text-[#86868b] hover:bg-black/[0.04] hover:text-[#0071e3] transition-all" title="查看明细">
-                                  <ExternalLink className="h-4 w-4" />
-                                </button>
-                                <button className={`p-2 rounded-xl transition-all ${log.status === "success" ? "text-green-500" : "text-red-500"}`}>
+                              <div className="flex items-center justify-center gap-1">
+                                <button className={`p-2 rounded-xl transition-all ${log.status === "success" ? "text-[#34c759]" : "text-[#ff3b30]"}`}>
                                   {log.status === "success" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                                </button>
+                                <button className="p-2 rounded-xl text-[#86868b] opacity-0 group-hover:opacity-100 hover:bg-black/[0.04] hover:text-[#0071e3] transition-all" title="查看明细">
+                                  <ExternalLink className="h-4 w-4" />
                                 </button>
                               </div>
                             </td>
@@ -1232,7 +1359,7 @@ export default function ModelService() {
                       <tr className="border-b border-black/[0.04] bg-black/[0.01]">
                         <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">名称</th>
                         <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">API Key</th>
-                        <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">已用额度</th>
+                        <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">已用积分</th>
                         <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">创建时间</th>
                         <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b]">状态</th>
                         <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-wider text-[#86868b] text-right">操作</th>

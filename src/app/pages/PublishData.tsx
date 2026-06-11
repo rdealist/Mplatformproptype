@@ -19,7 +19,7 @@ const MODALITY_OPTIONS = [
   { value: "OTH", label: "其他" }
 ];
 
-const ANATOMY_OPTIONS = ["头颅", "颈部", "胸部", "腹部", "盆腔", "脊柱", "四肢", "心脏", "血管"];
+const ANATOMY_OPTIONS = ["头颅", "颈部", "胸部", "腹部", "盆腔", "脊柱", "四肢", "心脏", "血管", "乳腺", "骨骼", "关节", "全身", "其他"];
 
 export default function PublishData() {
   const [searchParams] = useSearchParams();

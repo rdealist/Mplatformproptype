@@ -38,6 +38,11 @@ const filterSections = [
       { value: '四肢', label: '四肢' },
       { value: '心脏', label: '心脏' },
       { value: '血管', label: '血管' },
+      { value: '乳腺', label: '乳腺' },
+      { value: '骨骼', label: '骨骼' },
+      { value: '关节', label: '关节' },
+      { value: '全身', label: '全身' },
+      { value: '其他', label: '其他' },
     ],
   },
   {
