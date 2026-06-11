@@ -439,8 +439,42 @@ export default function About() {
       {/* ⑥ iMedImage® 模型工厂 (MaaS) */}
       <section className="bg-[#fbfbfd] px-20 py-28">
         <div className="mx-auto max-w-[1280px]">
-          <div className="grid grid-cols-2 gap-20 items-center">
-            <ScrollReveal>
+          <ScrollReveal>
+            <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
+              <span className="text-sm font-medium text-[#0071e3]">{t.factory.badge}</span>
+            </div>
+            <h2 className="whitespace-pre-line text-5xl font-semibold leading-[1.16] tracking-[-0.015em]">
+              {t.factory.title}
+            </h2>
+            <p className="mt-6 max-w-[640px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
+              {t.factory.sub}
+            </p>
+          </ScrollReveal>
+
+          <div className="mt-16 grid grid-cols-2 gap-20 items-center">
+            <ScrollReveal delay={0.1}>
+              <div className="space-y-8">
+                {t.factory.steps.map((step: any, i: number) => (
+                  <div key={step.title} className="flex gap-6 group">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/[0.06] shadow-sm text-sm font-bold text-[#0071e3] transition-all group-hover:bg-[#0071e3] group-hover:text-white group-hover:shadow-md">
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-[#1d1d1f]">{step.title}</h4>
+                      <p className="mt-1 text-sm leading-[1.6] text-[#86868b]">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+                <div className="pt-4">
+                  <MagneticButton className="flex items-center gap-2 rounded-full bg-[#0071e3] px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-[#0071e3]/20 transition-all hover:opacity-90 active:scale-[0.98]" onClick={() => window.open('/model-service', '_blank')}>
+                    {t.factory.cta}
+                    <ArrowRight className="h-5 w-5" />
+                  </MagneticButton>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal delay={0.2}>
               <div className="relative rounded-[40px] overflow-hidden border border-black/[0.08] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] aspect-square group">
                 <img src={factoryImg} alt="MaaS Factory" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -453,38 +487,6 @@ export default function About() {
                 </div>
               </div>
             </ScrollReveal>
-            <ScrollReveal delay={0.15}>
-              <div>
-                <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
-                  <span className="text-sm font-medium text-[#0071e3]">{t.factory.badge}</span>
-                </div>
-                <h2 className="whitespace-pre-line text-5xl font-semibold leading-[1.16] tracking-[-0.015em]">
-                  {t.factory.title}
-                </h2>
-                <p className="mt-6 text-[21px] font-medium leading-[1.52] text-[#86868b]">
-                  {t.factory.sub}
-                </p>
-                <div className="mt-12 space-y-8">
-                  {t.factory.steps.map((step: any, i: number) => (
-                    <div key={step.title} className="flex gap-6 group">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/[0.06] shadow-sm text-sm font-bold text-[#0071e3] transition-all group-hover:bg-[#0071e3] group-hover:text-white group-hover:shadow-md">
-                        {String(i + 1).padStart(2, '0')}
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-semibold text-[#1d1d1f]">{step.title}</h4>
-                        <p className="mt-1 text-sm leading-[1.6] text-[#86868b]">{step.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-12">
-                  <MagneticButton className="flex items-center gap-2 rounded-full bg-[#0071e3] px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-[#0071e3]/20 transition-all hover:opacity-90 active:scale-[0.98]" onClick={() => window.open('/model-service', '_blank')}>
-                    {t.factory.cta}
-                    <ArrowRight className="h-5 w-5" />
-                  </MagneticButton>
-                </div>
-              </div>
-            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -492,7 +494,7 @@ export default function About() {
       {/* ⑦ 专家成长路径 (Levels) */}
       <section className="bg-white px-20 py-28">
         <div className="mx-auto max-w-[1280px]">
-          <div className="text-center mb-16">
+          <div className="mb-16">
             <ScrollReveal>
               <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
                 <span className="text-sm font-medium text-[#0071e3]">{t.levels.badge}</span>
@@ -500,7 +502,7 @@ export default function About() {
               <h2 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em]">
                 {t.levels.title}
               </h2>
-              <p className="mx-auto mt-6 max-w-[640px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
+              <p className="mt-6 max-w-[640px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
                 {t.levels.sub}
               </p>
             </ScrollReveal>

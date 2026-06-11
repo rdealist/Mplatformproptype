@@ -7,7 +7,7 @@ const zhCN = {
     about: "为何选我们",
     dataAssets: "发现数据要素",
     earnIncome: "赚取专业收益",
-    community: "全球学术社区",
+    community: "社区",
 
     // 发现数据要素子菜单
     buyDatasets: "购买数据要素",
@@ -319,7 +319,7 @@ const en: TranslationSchema = {
     about: "Why Us",
     dataAssets: "Discover Data",
     earnIncome: "Earn Income",
-    community: "Global Community",
+    community: "Community",
 
     // Discover Data submenu
     buyDatasets: "Buy Data",
@@ -593,7 +593,7 @@ const zhTW: TranslationSchema = {
     about: "為何選我們",
     dataAssets: "發現數據",
     earnIncome: "賺取收入",
-    community: "全球社群",
+    community: "社群",
 
     // 發現數據子菜單
     buyDatasets: "購買數據",

@@ -13,41 +13,38 @@ const filterSections = [
     key: "modalities" as const,
     label: "成像模态",
     options: [
-      { value: 'MRI', label: 'MRI 磁共振' },
-      { value: 'CT', label: 'CT 计算机断层' },
-      { value: 'X-Ray', label: 'X-Ray X射线' },
-      { value: 'US', label: 'US 超声' },
-      { value: 'ECG', label: 'ECG 心电图' },
-      { value: 'EEG', label: 'EEG 脑电图' },
-      { value: '眼科影像', label: '眼科影像' },
-      { value: '内窥镜', label: '内窥镜' },
-      { value: '病理', label: '病理切片' },
-      { value: '皮肤镜', label: '皮肤镜' },
+      { value: 'X-ray', label: 'X射线' },
+      { value: 'CT', label: '计算机断层扫描' },
+      { value: 'US', label: '超声' },
+      { value: 'LAB', label: '实验室与分子显色' },
+      { value: 'MR', label: '磁共振' },
+      { value: 'WSI', label: '全幅数字病理' },
+      { value: 'VL', label: '可见光影像' },
+      { value: 'NM', label: '核医学与分子代谢' },
+      { value: 'VIDEO', label: '时序动态视频' },
+      { value: 'OTH', label: '其他' },
     ],
   },
   {
     key: "anatomies" as const,
-    label: "解剖系统",
+    label: "解剖部位",
     options: [
-      { value: '皮肤与体表系统', label: '皮肤与体表系统' },
-      { value: '骨骼系统', label: '骨骼系统' },
-      { value: '肌肉系统', label: '肌肉系统' },
-      { value: '神经系统', label: '神经系统' },
-      { value: '内分泌系统', label: '内分泌系统' },
-      { value: '心血管系统', label: '心血管系统' },
-      { value: '淋巴和免疫系统', label: '淋巴和免疫系统' },
-      { value: '呼吸系统', label: '呼吸系统' },
-      { value: '消化系统', label: '消化系统' },
-      { value: '泌尿系统', label: '泌尿系统' },
-      { value: '生殖系统', label: '生殖系统' },
-      { value: '其他', label: '其他' },
+      { value: '头颅', label: '头颅' },
+      { value: '颈部', label: '颈部' },
+      { value: '胸部', label: '胸部' },
+      { value: '腹部', label: '腹部' },
+      { value: '盆腔', label: '盆腔' },
+      { value: '脊柱', label: '脊柱' },
+      { value: '四肢', label: '四肢' },
+      { value: '心脏', label: '心脏' },
+      { value: '血管', label: '血管' },
     ],
   },
   {
     key: "sources" as const,
     label: "数据来源",
     options: [
-      { value: 'platform' as const, label: '平台数据' },
+      { value: 'platform' as const, label: '平台官方' },
       { value: 'institution' as const, label: '机构上传' },
       { value: 'external' as const, label: '委托展示' },
     ],
@@ -67,7 +64,7 @@ const filterSections = [
 export function DataFilter({ filters, onChange, isOpen }: DataFilterProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     modalities: true,
-    anatomies: false,
+    anatomies: true,
     sources: false,
     scales: false,
   });
@@ -105,7 +102,7 @@ export function DataFilter({ filters, onChange, isOpen }: DataFilterProps) {
       <div className="w-[240px] pr-6">
         <div className="sticky top-28">
           <div className="flex items-center justify-between py-2">
-            <h3 className="text-[13px] font-bold tracking-widest text-[#1d1d1f] uppercase">筛选条件</h3>
+            <h3 className="text-[11px] font-bold tracking-[0.2em] text-[#86868b] uppercase">筛选条件</h3>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
@@ -128,7 +125,7 @@ export function DataFilter({ filters, onChange, isOpen }: DataFilterProps) {
                     className="flex w-full items-center justify-between text-left group"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[#1d1d1f]">{section.label}</span>
+                      <span className="text-sm font-bold text-[#1d1d1f] tracking-tight">{section.label}</span>
                       {activeCount > 0 && (
                         <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0071e3] px-1 text-[10px] font-bold text-white">
                           {activeCount}
@@ -153,10 +150,10 @@ export function DataFilter({ filters, onChange, isOpen }: DataFilterProps) {
                             <button
                               key={option.value}
                               onClick={() => toggleFilter(section.key, option.value as never)}
-                              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
+                              className={`rounded-xl px-3.5 py-1.5 text-[11px] font-bold transition-all duration-200 ${
                                 isSelected
-                                  ? "bg-[#0071e3] text-white"
-                                  : "bg-[#f5f5f7] text-[#1d1d1f] hover:bg-[#e8e8ed]"
+                                  ? "bg-[#0071e3] text-white shadow-sm"
+                                  : "bg-black/[0.03] text-[#1d1d1f] hover:bg-black/[0.06]"
                               }`}
                             >
                               {option.label}

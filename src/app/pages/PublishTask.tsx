@@ -1,7 +1,10 @@
-import { Target, Coins, Calendar, Info, FileText, Sparkles, CheckCircle2, Loader2, ShieldCheck, Zap, Database, ArrowRight } from "lucide-react";
+import { Target, Coins, Calendar, Info, FileText, Sparkles, CheckCircle2, Loader2, ShieldCheck, Zap, Database, ArrowRight, ChevronLeft, Search, Plus } from "lucide-react";
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router";
+import { motion, AnimatePresence } from "motion/react";
 
 type AnalysisState = "idle" | "analyzing" | "done";
+type Step = 1 | 2 | 3;
 
 interface ExistingDataset {
   id: string;
@@ -16,17 +19,19 @@ interface ExistingDataset {
 
 // 模拟用户已有的数据集
 const mockExistingDatasets: ExistingDataset[] = [
-  { id: "DS001", name: "胸部 CT 肺结节影像集", type: "分类标注", modality: "CT", anatomy: "胸部", count: 1000, size: "42 GB", uploadDate: "2026-05-15" },
-  { id: "DS002", name: "脑部 MRI 肿瘤分割数据", type: "分割标注", modality: "MRI", anatomy: "头部", count: 500, size: "28 GB", uploadDate: "2026-04-22" },
-  { id: "DS003", name: "骨折 X 光检测影像", type: "检测标注", modality: "X-Ray", anatomy: "骨骼", count: 2000, size: "18 GB", uploadDate: "2026-03-10" },
-  { id: "DS004", name: "视网膜病变眼底影像", type: "分类标注", modality: "眼底", anatomy: "眼部", count: 1500, size: "12 GB", uploadDate: "2026-02-28" },
+  { id: "DS001", name: "胸部 CT 肺结节影像集", type: "分类标注", modality: "计算机断层扫描", anatomy: "胸部", count: 1000, size: "42 GB", uploadDate: "2026-05-15" },
+  { id: "DS002", name: "脑部 MRI 肿瘤分割数据", type: "分割标注", modality: "磁共振", anatomy: "头颅", count: 500, size: "28 GB", uploadDate: "2026-04-22" },
+  { id: "DS003", name: "骨折 X 光检测影像", type: "检测标注", modality: "X射线", anatomy: "四肢", count: 2000, size: "18 GB", uploadDate: "2026-03-10" },
+  { id: "DS004", name: "视网膜病变眼底影像", type: "分类标注", modality: "可见光影像", anatomy: "头颅", count: 1500, size: "12 GB", uploadDate: "2026-02-28" },
 ];
 
 export default function PublishTask() {
-  const [showDatasetList, setShowDatasetList] = useState(false);
-  const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<Step>(1);
+  const [selectedDataset, setSelectedDataset] = useState<ExistingDataset | null>(null);
   const [analysisState, setAnalysisState] = useState<AnalysisState>("idle");
-  const [annotationRatio, setAnnotationRatio] = useState(80); // 初审标注比例，默认80%
+  const [annotationRatio, setAnnotationRatio] = useState(80);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 默认截止日期为1个自然月后
   const getDefaultDeadline = () => {
@@ -38,29 +43,22 @@ export default function PublishTask() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    types: [] as string[], // 标注类型，支持多选
+    types: [] as string[],
     modality: "",
     anatomy: "",
     level: "",
-    pricePerImage: "", // 单张影像总预算
+    pricePerImage: "",
     deadline: getDefaultDeadline(),
-    totalImages: "", // 影像总数
+    totalImages: "",
   });
 
-  // 可选的标注类型
-  const annotationTypes = [
-    "分类标注",
-    "分割标注",
-    "检测标注",
-    "关键点标注",
-  ];
+  const annotationTypes = ["分类标注", "分割标注", "检测标注", "关键点标注"];
 
-  // 计算预算拆分
   const budgetBreakdown = useMemo(() => {
     const price = parseFloat(formData.pricePerImage) || 0;
     const total = parseInt(formData.totalImages) || 0;
-    const annotationPrice = price * (annotationRatio / 100); // 按比例给初审标注
-    const reviewPrice = price * ((100 - annotationRatio) / 100); // 剩余给专家复审
+    const annotationPrice = price * (annotationRatio / 100);
+    const reviewPrice = price * ((100 - annotationRatio) / 100);
     const totalBudget = price * total;
 
     return {
@@ -73,484 +71,439 @@ export default function PublishTask() {
     };
   }, [formData.pricePerImage, formData.totalImages, annotationRatio]);
 
-  const handleSelectExistingDataset = (datasetId: string) => {
-    setSelectedDataset(datasetId);
-    const dataset = mockExistingDatasets.find(d => d.id === datasetId);
-    if (dataset) {
-      setAnalysisState("analyzing");
-      setTimeout(() => {
-        setFormData(prev => ({
-          ...prev,
-          title: dataset.name,
-          description: `基于已上传数据集「${dataset.name}」标标注需求。该数据集包含 ${dataset.count} 张 ${dataset.modality} 影像，已完成数据清洗与格式标准化，可直接用于标注任务单发布。`,
-          types: [dataset.type], // 默认选中数据集的类型
-          modality: dataset.modality,
-          anatomy: dataset.anatomy,
-          level: "Lv3",
-          totalImages: dataset.count.toString(),
-          deadline: getDefaultDeadline(),
-        }));
-        setAnalysisState("done");
-      }, 1500);
-    }
+  const handleSelectDataset = (dataset: ExistingDataset) => {
+    setSelectedDataset(dataset);
+    setAnalysisState("analyzing");
+    
+    // 模拟分析过程
+    setTimeout(() => {
+      setFormData(prev => ({
+        ...prev,
+        title: dataset.name + "标注任务",
+        description: `基于数据集「${dataset.name}」的标注需求。包含 ${dataset.count} 张影像，需按规范进行${dataset.type}。`,
+        types: [dataset.type],
+        modality: dataset.modality,
+        anatomy: dataset.anatomy,
+        level: "Lv3",
+        totalImages: dataset.count.toString(),
+      }));
+      setAnalysisState("done");
+      setCurrentStep(2);
+    }, 1500);
   };
-
-  const isAutoFilled = analysisState === "done";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setCurrentStep(3);
+      setIsSubmitting(false);
+    }, 2000);
   };
+
+  const StepIndicator = () => (
+    <div className="mx-auto mb-12 max-w-[600px]">
+      <div className="relative flex justify-between">
+        {/* Line */}
+        <div className="absolute top-5 left-0 h-[2px] w-full bg-black/[0.04]" />
+        <div 
+          className="absolute top-5 left-0 h-[2px] bg-[#0071e3] transition-all duration-500" 
+          style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
+        />
+        
+        {[1, 2, 3].map((s) => (
+          <div key={s} className="relative z-10 flex flex-col items-center">
+            <div 
+              className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300 ${
+                currentStep >= s 
+                  ? "border-[#0071e3] bg-[#0071e3] text-white" 
+                  : "border-black/[0.08] bg-white text-[#86868b]"
+              }`}
+            >
+              {currentStep > s ? <CheckCircle2 className="h-5 w-5" /> : <span className="text-sm font-bold">{s}</span>}
+            </div>
+            <span className={`mt-3 text-[13px] font-bold ${currentStep >= s ? "text-[#1d1d1f]" : "text-[#86868b]"}`}>
+              {s === 1 ? "选择数据集" : s === 2 ? "发布任务信息" : "发布成功"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-[#fbfbfd] text-[#1d1d1f] antialiased">
-      <section className="px-20 py-28">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="mb-8">
-            <h1 className="text-[48px] font-semibold leading-[1.08] tracking-tight">发布标注需求</h1>
-            <p className="mt-6 text-[21px] leading-[1.52] text-[#86868b]">
-              选择已处理完成的数据集，配置单张预算，自动生成初审+复审双任务单
+      <section className="px-6 lg:px-20 py-12">
+        <div className="mx-auto max-w-[1000px]">
+          {/* Back Button */}
+          <button 
+            onClick={() => currentStep === 3 ? navigate('/workspace') : navigate(-1)}
+            className="group mb-12 flex items-center gap-2 text-[#86868b] hover:text-[#1d1d1f] transition-colors"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white border border-black/[0.04] shadow-sm group-hover:bg-black/[0.02] transition-all">
+              <ChevronLeft className="h-5 w-5" />
+            </div>
+            <span className="text-sm font-bold tracking-tight">返回工作台</span>
+          </button>
+
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold tracking-tight">发布标注需求</h1>
+            <p className="mt-4 text-[17px] font-medium text-[#86868b]">
+              简单三步，快速开启您的医疗数据标注任务
             </p>
           </div>
 
-          {/* 选择数据集入口 */}
-          {!showDatasetList && analysisState === "idle" ? (
-            <div className="mb-6">
-              <button
-                onClick={() => setShowDatasetList(true)}
-                className="group w-full rounded-3xl border-2 border-dashed border-black/[0.08] bg-white p-16 text-center transition-all duration-300 hover:border-[#0071e3]/30 hover:bg-[#0071e3]/[0.02]"
+          <StepIndicator />
+
+          <AnimatePresence mode="wait">
+            {currentStep === 1 && (
+              <motion.div 
+                key="step1"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-6"
               >
-                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#0071e3]/[0.08] transition-all duration-300 group-hover:bg-[#0071e3]/[0.12]">
-                  <Database className="h-10 w-10 text-[#0071e3]" strokeWidth={1.5} />
-                </div>
-                <p className="mb-2 text-[21px] font-semibold text-[#1d1d1f]">选择数据集</p>
-                <p className="text-sm text-[#86868b]">
-                  查看并选择已处理完成的数据集 · 共 {mockExistingDatasets.length} 个可用
-                </p>
-              </button>
-            </div>
-          ) : null}
-
-          {/* 数据集列表 */}
-          {showDatasetList && mockExistingDatasets.length > 0 ? (
-            <div className="mb-6">
-              {analysisState === "idle" ? (
-                <div className="grid gap-4">
-                  <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/[0.04] px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Database className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                      <span className="text-sm font-medium text-[#0071e3]">
-                        从已处理完成的数据集中选择（点击卡片选择）
-                      </span>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center justify-between px-2">
+                    <h2 className="text-xl font-bold">选择可用数据集</h2>
+                    <div className="flex items-center gap-4">
+                       <div className="relative">
+                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#86868b]" />
+                         <input type="text" placeholder="搜索数据集..." className="rounded-full border border-black/[0.08] bg-white py-1.5 pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-[#0071e3]/10" />
+                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-[#86868b]">
-                        共 {mockExistingDatasets.length} 个可用数据集
-                      </span>
+                  </div>
+
+                  {analysisState === "analyzing" ? (
+                    <div className="flex flex-col items-center justify-center rounded-[32px] border border-black/[0.06] bg-white p-20 text-center">
+                      <Loader2 className="h-12 w-12 animate-spin text-[#0071e3] mb-4" />
+                      <h3 className="text-lg font-bold">正在分析数据集结构...</h3>
+                      <p className="text-sm text-[#86868b] mt-2">AI 正在为您自动提取模态、解剖部位等核心特征</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      {/* 上传数据集入口 */}
                       <button
-                        onClick={() => {
-                          setShowDatasetList(false);
-                          setSelectedDataset(null);
-                        }}
-                        className="text-sm text-[#86868b] hover:text-[#1d1d1f] transition-colors"
+                        onClick={() => navigate('/publish-data?mode=native')}
+                        className="group relative flex flex-col items-center justify-center rounded-[32px] border-2 border-dashed border-black/[0.08] bg-white p-6 text-center transition-all hover:border-[#0071e3]/30 hover:bg-[#0071e3]/[0.02] active:scale-[0.98] min-h-[220px]"
                       >
-                        收起
+                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#0071e3]/[0.08] text-[#0071e3] transition-all group-hover:bg-[#0071e3] group-hover:text-white">
+                          <Plus className="h-8 w-8" strokeWidth={2.5} />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#1d1d1f]">去上传数据集</h3>
+                        <p className="mt-2 px-6 text-[13px] font-medium text-[#86868b]">
+                          还没有处理好的数据集？点击此处前往上传新数据
+                        </p>
+                        <ArrowRight className="mt-4 h-4 w-4 text-[#0071e3] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                       </button>
-                    </div>
-                  </div>
-                  {mockExistingDatasets.map((dataset) => (
-                    <div
-                      key={dataset.id}
-                      onClick={() => handleSelectExistingDataset(dataset.id)}
-                      className={`cursor-pointer rounded-2xl border p-6 transition-all duration-200 ${
-                        selectedDataset === dataset.id
-                          ? "border-[#0071e3]/30 bg-[#0071e3]/[0.04] shadow-[0_2px_8px_rgba(0,113,227,0.08)]"
-                          : "border-black/[0.08] bg-white hover:border-[#0071e3]/20 hover:bg-[#0071e3]/[0.02]"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center gap-2">
-                            <h3 className="text-sm font-semibold text-[#1d1d1f]">{dataset.name}</h3>
-                            <span className="rounded-full bg-[#0071e3]/10 px-2 py-0.5 text-xs font-medium text-[#0071e3]">
-                              {dataset.id}
-                            </span>
-                            <span className="rounded-full bg-[#34c759]/10 px-2 py-0.5 text-xs font-medium text-[#34c759]">
-                              已处理完成
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-[#86868b]">
-                            <span>{dataset.type}</span>
-                            <span>•</span>
-                            <span>{dataset.modality}</span>
-                            <span>•</span>
-                            <span>{dataset.anatomy}</span>
-                            <span>•</span>
-                            <span>{dataset.count.toLocaleString()} 张</span>
-                            <span>•</span>
-                            <span>{dataset.size}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-[#86868b]">上传于</div>
-                          <div className="text-xs font-medium text-[#1d1d1f]">{dataset.uploadDate}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : analysisState === "analyzing" ? (
-                <div className="rounded-3xl border-2 border-dashed border-[#0071e3]/30 bg-[#0071e3]/[0.02] p-16 text-center">
-                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#0071e3]/[0.08]">
-                    <Loader2 className="h-10 w-10 animate-spin text-[#0071e3]" strokeWidth={1.5} />
-                  </div>
-                  <p className="mb-2 text-[21px] font-semibold text-[#1d1d1f]">AI 正在加载数据集信息…</p>
-                  <p className="text-sm text-[#86868b]">自动填充标注需求配置</p>
-                </div>
-              ) : (
-                <div className="rounded-3xl border-2 border-dashed border-[#34c759]/30 bg-[#34c759]/[0.02] p-16 text-center">
-                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#34c759]/[0.10]">
-                    <CheckCircle2 className="h-10 w-10 text-[#34c759]" strokeWidth={1.5} />
-                  </div>
-                  <p className="mb-2 text-[21px] font-semibold text-[#1d1d1f]">数据集已选择，共 {formData.totalImages} 张影像</p>
-                  <p className="text-sm text-[#86868b]">请在下方确认标注需求信息并配置预算</p>
-                </div>
-              )}
-            </div>
-          ) : showDatasetList && mockExistingDatasets.length === 0 ? (
-            <div className="mb-6 rounded-3xl border-2 border-dashed border-black/[0.08] bg-[#fbfbfd] p-16 text-center">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#ff9500]/[0.08]">
-                <Database className="h-10 w-10 text-[#ff9500]" strokeWidth={1.5} />
-              </div>
-              <p className="mb-2 text-[21px] font-semibold text-[#1d1d1f]">暂无可用数据集</p>
-              <p className="mb-6 text-sm text-[#86868b]">您还没有上传并处理完成的数据集，请先上传数据集</p>
-              <button className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-6 py-3 text-sm font-medium text-white transition-opacity duration-200 hover:opacity-90">
-                <Database className="h-4 w-4" strokeWidth={2} />
-                立即上传数据集
-                <ArrowRight className="h-4 w-4" strokeWidth={2} />
-              </button>
-            </div>
-          ) : null}
 
-          {/* 选择了数据集后才显示配置表单 */}
-          {analysisState === "done" && (
-            <div className="flex items-start gap-8">
-              {/* 左侧主表单 */}
-              <form onSubmit={handleSubmit} className="min-w-0 flex-1 space-y-6">
-
-              {/* 标注需求信息 */}
-              <div className="rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="mb-6 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                    <h2 className="text-[21px] font-semibold leading-[1.52]">标注需求信息</h2>
-                  </div>
-                  {isAutoFilled && (
-                    <div className="flex items-center gap-1.5 rounded-full bg-[#34c759]/[0.08] px-3 py-1">
-                      <Sparkles className="h-3.5 w-3.5 text-[#34c759]" strokeWidth={2} />
-                      <span className="text-xs font-medium text-[#34c759]">AI 已自动填充，可手动修改</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-6">
-                  {/* 标题 */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">需求标题</label>
-                    {isAutoFilled ? (
-                      <input
-                        type="text"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full rounded-full border border-[#34c759]/30 bg-[#34c759]/[0.02] px-4 py-2 text-sm text-[#1d1d1f] transition-all duration-200 focus:border-[#0071e3]/30 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/10"
-                      />
-                    ) : (
-                      <div className="flex h-9 items-center rounded-full border border-black/[0.06] bg-[#fbfbfd] px-4">
-                        <span className="text-sm text-[#86868b]">上传样本后自动生成</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 描述 */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">标注规范说明</label>
-                    {isAutoFilled ? (
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        rows={5}
-                        className="w-full resize-none rounded-2xl border border-[#34c759]/30 bg-[#34c759]/[0.02] px-4 py-3 text-sm text-[#1d1d1f] transition-all duration-200 focus:border-[#0071e3]/30 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/10"
-                      />
-                    ) : (
-                      <div className="flex h-28 items-start rounded-2xl border border-black/[0.06] bg-[#fbfbfd] px-4 py-3">
-                        <span className="text-sm text-[#86868b]">上传影像后由 AI 自动生成标注规范与质控要求</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 标注类型（多选） */}
-                  <div>
-                    <label className="mb-3 block text-sm font-medium text-[#1d1d1f]">标注类型（可多选）</label>
-                    <div className="flex flex-wrap gap-2">
-                      {annotationTypes.map((type) => {
-                        const isSelected = formData.types.includes(type);
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({
-                                ...prev,
-                                types: isSelected
-                                  ? prev.types.filter(t => t !== type)
-                                  : [...prev.types, type]
-                              }));
-                            }}
-                            className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                              isSelected
-                                ? "border-[#0071e3]/30 bg-[#0071e3]/[0.08] text-[#0071e3]"
-                                : "border-black/[0.08] bg-white text-[#86868b] hover:border-[#0071e3]/20 hover:bg-[#0071e3]/[0.02]"
-                            }`}
-                          >
-                            {type}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* AI 自动判断：模态、部位 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { key: "modality", label: "成像模态" },
-                      { key: "anatomy", label: "解剖部位" },
-                    ].map(({ key, label }) => (
-                      <div key={key}>
-                        <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">{label}</label>
-                        {isAutoFilled ? (
-                          <div className="flex h-9 items-center gap-2 rounded-full border border-[#34c759]/30 bg-[#34c759]/[0.02] px-4">
-                            <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#34c759]" strokeWidth={2} />
-                            <span className="text-sm text-[#1d1d1f]">{formData[key as keyof typeof formData]}</span>
-                          </div>
-                        ) : (
-                          <div className="flex h-9 items-center rounded-full border border-black/[0.06] bg-[#fbfbfd] px-4">
-                            <span className="text-sm text-[#86868b]">AI 自动判断</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* AI 自动判断：要求等级、影像数量 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { key: "level", label: "要求等级" },
-                      { key: "totalImages", label: "影像数量" },
-                    ].map(({ key, label }) => (
-                      <div key={key}>
-                        <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">{label}</label>
-                        {isAutoFilled ? (
-                          <div className="flex h-9 items-center gap-2 rounded-full border border-[#34c759]/30 bg-[#34c759]/[0.02] px-4">
-                            <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#34c759]" strokeWidth={2} />
-                            <span className="text-sm text-[#1d1d1f]">{formData[key as keyof typeof formData]}</span>
-                          </div>
-                        ) : (
-                          <div className="flex h-9 items-center rounded-full border border-black/[0.06] bg-[#fbfbfd] px-4">
-                            <span className="text-sm text-[#86868b]">AI 自动判断</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 预算配置 */}
-              <div className="rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="mb-6 flex items-center gap-2">
-                  <Coins className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h2 className="text-[21px] font-semibold leading-[1.52]">预算配置</h2>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">单张影像总预算</label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={formData.pricePerImage}
-                        onChange={(e) => setFormData({ ...formData, pricePerImage: e.target.value })}
-                        placeholder="例如：1.2"
-                        className="w-full rounded-full border border-black/[0.08] bg-white px-4 py-2 pr-24 text-sm text-[#1d1d1f] placeholder:text-[#86868b] transition-all duration-200 focus:border-[#0071e3]/30 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/10"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#86868b]">积分/张</span>
-                    </div>
-                  </div>
-
-                  {/* 预算拆分比例选择 */}
-                  <div>
-                    <label className="mb-3 block text-sm font-medium text-[#1d1d1f]">标注-复审预算比例</label>
-
-                    {/* 锚点快捷选择 */}
-                    <div className="mb-4 flex gap-2">
-                      {[
-                        { value: 80, label: "推荐配置" },
-                        { value: 70, label: "高质量" },
-                        { value: 90, label: "快速模式" },
-                      ].map((preset) => (
+                      {mockExistingDatasets.map((dataset) => (
                         <button
-                          key={preset.value}
-                          type="button"
-                          onClick={() => setAnnotationRatio(preset.value)}
-                          className={`flex-1 rounded-xl border px-4 py-2.5 text-center transition-all duration-200 ${
-                            annotationRatio === preset.value
-                              ? "border-[#0071e3]/30 bg-[#0071e3]/[0.04] text-[#0071e3]"
-                              : "border-black/[0.08] bg-white text-[#1d1d1f] hover:border-[#0071e3]/20 hover:bg-[#0071e3]/[0.02]"
-                          }`}
+                          key={dataset.id}
+                          onClick={() => handleSelectDataset(dataset)}
+                          className="group relative flex flex-col items-start rounded-[32px] border border-black/[0.06] bg-white p-6 text-left transition-all hover:border-[#0071e3]/30 hover:shadow-xl active:scale-[0.98]"
                         >
-                          <div className="text-sm font-medium">{preset.label}</div>
+                          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0071e3]/[0.08] text-[#0071e3] transition-colors group-hover:bg-[#0071e3] group-hover:text-white">
+                            <Database className="h-6 w-6" />
+                          </div>
+                          <h3 className="text-lg font-bold truncate w-full">{dataset.name}</h3>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-bold text-[#86868b] uppercase tracking-wider">{dataset.modality}</span>
+                            <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-bold text-[#86868b] uppercase tracking-wider">{dataset.anatomy}</span>
+                          </div>
+                          <div className="mt-6 flex w-full items-center justify-between border-t border-black/[0.04] pt-4 text-[11px] font-bold text-[#86868b]">
+                            <span>{dataset.count} 张影像</span>
+                            <span>{dataset.uploadDate}</span>
+                          </div>
+                          <div className="absolute right-6 top-6 h-6 w-6 rounded-full border border-black/[0.08] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Plus className="h-3 w-3 text-[#0071e3]" />
+                          </div>
                         </button>
                       ))}
                     </div>
-
-                    {/* 滑块 */}
-                    <div className="rounded-2xl border border-black/[0.08] bg-[#fbfbfd] p-4">
-                      <div className="mb-3 flex items-center justify-between text-xs">
-                        <span className="font-medium text-[#1d1d1f]">初审标注</span>
-                        <span className="font-semibold text-[#0071e3]">{annotationRatio}%</span>
-                        <span className="font-semibold text-[#0071e3]">{100 - annotationRatio}%</span>
-                        <span className="font-medium text-[#1d1d1f]">专家复审</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="60"
-                        max="95"
-                        step="5"
-                        value={annotationRatio}
-                        onChange={(e) => setAnnotationRatio(parseInt(e.target.value))}
-                        className="w-full"
-                        style={{
-                          background: `linear-gradient(to right, #0071e3 0%, #0071e3 ${annotationRatio}%, #e5e5e7 ${annotationRatio}%, #e5e5e7 100%)`
-                        }}
-                      />
-                      <div className="mt-2 text-xs text-[#86868b]">
-                        拖动调节比例（60%-95% 用于初审标注）
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 预算拆分展示 */}
-                  {budgetBreakdown.hasData && (
-                    <div className="rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/[0.02] p-6">
-                      <div className="mb-4 flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                        <h3 className="text-sm font-semibold text-[#0071e3]">预算自动拆分方案</h3>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between rounded-xl bg-white p-4">
-                          <div>
-                            <div className="text-sm font-medium text-[#1d1d1f]">初审标注任务单</div>
-                            <div className="mt-1 text-xs text-[#86868b]">立即推送至「申领标注任务」，供医生领取</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-[21px] font-semibold text-[#1d1d1f]">{budgetBreakdown.annotationPrice}</div>
-                            <div className="text-xs text-[#86868b]">积分/张 ({budgetBreakdown.annotationRatio}%)</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl bg-white p-4">
-                          <div>
-                            <div className="text-sm font-medium text-[#1d1d1f]">专家复审任务单</div>
-                            <div className="mt-1 text-xs text-[#86868b]">锁定状态，初审完成后自动解锁给专家</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-[21px] font-semibold text-[#1d1d1f]">{budgetBreakdown.reviewPrice}</div>
-                            <div className="text-xs text-[#86868b]">积分/张 ({budgetBreakdown.reviewRatio}%)</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between border-t border-black/[0.08] pt-3">
-                          <div className="text-sm font-semibold text-[#1d1d1f]">总预算锁定</div>
-                          <div className="text-[21px] font-semibold text-[#0071e3]">{budgetBreakdown.totalBudget} 积分</div>
-                        </div>
-                      </div>
-                    </div>
                   )}
+                </div>
+              </motion.div>
+            )}
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#1d1d1f]">截止日期</label>
-                    <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#86868b]" strokeWidth={2} />
-                      <input
-                        type="date"
-                        value={formData.deadline}
-                        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                        className="w-full rounded-full border border-black/[0.08] bg-white py-2 pl-11 pr-4 text-sm text-[#1d1d1f] transition-all duration-200 focus:border-[#0071e3]/30 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/10"
-                      />
+            {currentStep === 2 && (
+              <motion.div 
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Left Column: Form */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="rounded-[32px] border border-black/[0.06] bg-white p-8 shadow-sm">
+                      <div className="mb-8 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0071e3]/[0.08] text-[#0071e3]">
+                          <Target className="h-5 w-5" />
+                        </div>
+                        <h2 className="text-xl font-bold">任务配置信息</h2>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div>
+                          <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">需求标题</label>
+                          <input
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="w-full rounded-2xl border border-black/[0.08] bg-[#fbfbfd] px-4 py-3 text-sm focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/5 transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">标注规范说明</label>
+                          <textarea
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            rows={4}
+                            className="w-full rounded-2xl border border-black/[0.08] bg-[#fbfbfd] px-4 py-3 text-sm focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/5 transition-all resize-none"
+                            required
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">成像模态</label>
+                            <div className="flex h-11 items-center rounded-2xl bg-black/[0.04] px-4 text-sm font-medium text-[#86868b]">
+                              {formData.modality}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">要求等级</label>
+                            <select 
+                              value={formData.level}
+                              onChange={(e) => setFormData({...formData, level: e.target.value})}
+                              className="w-full h-11 rounded-2xl border border-black/[0.08] bg-[#fbfbfd] px-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#0071e3]/5"
+                            >
+                              <option value="Lv1">Lv.1 初级</option>
+                              <option value="Lv2">Lv.2 进阶</option>
+                              <option value="Lv3">Lv.3 专业</option>
+                              <option value="Lv4">Lv.4 资深</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-3 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">标注类型</label>
+                          <div className="flex flex-wrap gap-2">
+                            {annotationTypes.map((type) => {
+                              const isSelected = formData.types.includes(type);
+                              return (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      types: isSelected ? prev.types.filter(t => t !== type) : [...prev.types, type]
+                                    }));
+                                  }}
+                                  className={`rounded-full px-5 py-2 text-[12px] font-bold transition-all ${
+                                    isSelected
+                                      ? "bg-[#0071e3] text-white shadow-lg shadow-[#0071e3]/20"
+                                      : "bg-black/[0.04] text-[#86868b] hover:bg-black/[0.08]"
+                                  }`}
+                                >
+                                  {type}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[32px] border border-black/[0.06] bg-white p-8 shadow-sm">
+                      <div className="mb-8 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff9500]/[0.08] text-[#ff9500]">
+                          <Coins className="h-5 w-5" />
+                        </div>
+                        <h2 className="text-xl font-bold">预算与计划</h2>
+                      </div>
+
+                      <div className="space-y-8">
+                        <div>
+                          <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">单张影像预算 (积分/张)</label>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={formData.pricePerImage}
+                              onChange={(e) => setFormData({ ...formData, pricePerImage: e.target.value })}
+                              className="w-full rounded-2xl border border-black/[0.08] bg-[#fbfbfd] px-4 py-3 text-sm focus:border-[#0071e3] focus:outline-none transition-all"
+                              placeholder="0.0"
+                              required
+                            />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#86868b] uppercase">积分</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                             <label className="text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">标注/复审预算分配</label>
+                             <span className="text-xs font-bold text-[#0071e3] bg-[#0071e3]/[0.08] px-2 py-0.5 rounded-full">{annotationRatio}% : {100 - annotationRatio}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="60"
+                            max="95"
+                            step="5"
+                            value={annotationRatio}
+                            onChange={(e) => setAnnotationRatio(parseInt(e.target.value))}
+                            className="w-full h-1.5 bg-black/[0.04] rounded-full appearance-none cursor-pointer accent-[#0071e3]"
+                          />
+                          <div className="mt-2 flex justify-between text-[10px] font-bold text-[#86868b] uppercase tracking-widest">
+                            <span>标注侧重</span>
+                            <span>专家侧重</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-[13px] font-bold text-[#1d1d1f] uppercase tracking-wider">任务截止日期</label>
+                          <div className="relative">
+                            <Calendar className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#86868b]" />
+                            <input
+                              type="date"
+                              value={formData.deadline}
+                              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                              className="w-full rounded-2xl border border-black/[0.08] bg-[#fbfbfd] py-3 pl-12 pr-4 text-sm focus:outline-none"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* 提交 */}
-              <div className="flex items-center justify-end gap-4 pb-4">
-                <button
-                  type="button"
-                  className="rounded-full border border-black/[0.08] bg-transparent px-6 py-3 text-sm font-medium text-[#1d1d1f] transition-all duration-200 hover:border-[#0071e3]/30 hover:bg-[#0071e3]/[0.04] focus:outline-none"
-                >
-                  保存草稿
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isAutoFilled || !budgetBreakdown.hasData}
-                  className="rounded-full bg-[#0071e3] px-6 py-3 text-sm font-medium text-white transition-opacity duration-200 hover:opacity-90 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  发布标注需求
-                </button>
-              </div>
-            </form>
+                  {/* Right Column: Summary */}
+                  <div className="space-y-6">
+                    <div className="sticky top-6 rounded-[32px] border border-black/[0.06] bg-white p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.04)]">
+                       <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-[#1d1d1f]">
+                         <Sparkles className="h-5 w-5 text-[#0071e3]" />
+                         自动生成方案预览
+                       </h3>
 
-            {/* 右侧辅助信息 */}
-            <div className="w-72 shrink-0 space-y-6">
-              <div className="rounded-3xl border border-black/[0.08] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="mb-4 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h3 className="text-sm font-semibold text-[#1d1d1f]">任务单生成流程</h3>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    { step: "1", title: "选择数据集", desc: "从已处理完成的数据集中选择" },
-                    { step: "2", title: "配置单张预算", desc: "系统自动拆分初审与复审" },
-                    { step: "3", title: "初审任务单上线", desc: "推送至任务广场供医生领取" },
-                    { step: "4", title: "复审任务单待命", desc: "初审完成后自动解锁给专家" },
-                  ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-3">
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/[0.08] text-xs font-semibold text-[#0071e3]">
-                        {item.step}
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-[#1d1d1f]">{item.title}</p>
-                        <p className="text-xs text-[#86868b]">{item.desc}</p>
-                      </div>
+                       <div className="space-y-6">
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-[0.2em]">预估总预算</p>
+                            <p className="text-4xl font-bold tracking-tight text-[#0071e3]">{budgetBreakdown.totalBudget}<span className="ml-1 text-sm font-medium text-[#86868b]">积分</span></p>
+                          </div>
+
+                          <div className="space-y-4 pt-6 border-t border-black/[0.04]">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[11px] font-medium text-[#86868b]">初审任务单 ({annotationRatio}%)</span>
+                              <span className="text-sm font-bold text-[#1d1d1f]">{budgetBreakdown.annotationPrice} 积分/张</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[11px] font-medium text-[#86868b]">专家复审单 ({100-annotationRatio}%)</span>
+                              <span className="text-sm font-bold text-[#1d1d1f]">{budgetBreakdown.reviewPrice} 积分/张</span>
+                            </div>
+                          </div>
+
+                          <div className="pt-8">
+                            <button 
+                              type="submit"
+                              disabled={isSubmitting || !budgetBreakdown.hasData}
+                              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0071e3] py-4 text-sm font-bold text-white shadow-lg shadow-[#0071e3]/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100"
+                            >
+                              {isSubmitting ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                              ) : (
+                                <>
+                                  发布任务
+                                  <ArrowRight className="h-4 w-4" />
+                                </>
+                              )}
+                            </button>
+                            <p className="mt-4 text-center text-[10px] text-[#86868b]">发布后将自动扣除相应积分并进入冻结状态</p>
+                          </div>
+                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="rounded-3xl border border-[#0071e3]/20 bg-[#0071e3]/[0.04] p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <Info className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h3 className="text-sm font-semibold text-[#0071e3]">重要说明</h3>
+                    <div className="rounded-[32px] border border-black/[0.06] bg-white p-6 shadow-sm">
+                       <h4 className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest mb-4">当前数据集</h4>
+                       <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-[#0071e3]/[0.08] flex items-center justify-center">
+                             <Database className="h-5 w-5 text-[#0071e3]" />
+                          </div>
+                          <div className="min-w-0">
+                             <p className="text-sm font-bold truncate">{selectedDataset?.name}</p>
+                             <p className="text-[11px] font-medium text-[#86868b]">{selectedDataset?.count} 张样本</p>
+                          </div>
+                       </div>
+                       <button 
+                         type="button"
+                         onClick={() => {
+                           setCurrentStep(1);
+                           setSelectedDataset(null);
+                           setAnalysisState("idle");
+                         }}
+                         className="mt-4 w-full py-2 text-[11px] font-bold text-[#0071e3] hover:underline"
+                       >
+                         更换数据集
+                       </button>
+                    </div>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {currentStep === 3 && (
+              <motion.div 
+                key="step3"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mx-auto max-w-[600px] text-center"
+              >
+                <div className="rounded-[40px] border border-black/[0.06] bg-white p-12 shadow-2xl">
+                   <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#34c759]/[0.08] text-[#34c759]">
+                      <CheckCircle2 className="h-12 w-12" strokeWidth={2.5} />
+                   </div>
+                   <h2 className="text-3xl font-bold tracking-tight">发布成功</h2>
+                   <p className="mt-4 text-[17px] font-medium text-[#86868b]">
+                     您的标注任务「{formData.title}」已正式发布。初审任务单已同步至任务市场，复审单进入待命状态。
+                   </p>
+
+                   <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-black/[0.06] bg-[#fbfbfd] p-5 text-left">
+                        <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-2">已扣除预算</p>
+                        <p className="text-xl font-bold text-[#1d1d1f]">{budgetBreakdown.totalBudget} <span className="text-xs font-medium text-[#86868b]">积分</span></p>
+                      </div>
+                      <div className="rounded-2xl border border-black/[0.06] bg-[#fbfbfd] p-5 text-left">
+                        <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider mb-2">预计处理周期</p>
+                        <p className="text-xl font-bold text-[#1d1d1f]">约 14 <span className="text-xs font-medium text-[#86868b]">个工作日</span></p>
+                      </div>
+                   </div>
+
+                   <div className="mt-10 flex flex-col gap-3">
+                      <button 
+                        onClick={() => navigate('/workspace')}
+                        className="rounded-2xl bg-[#0071e3] py-4 text-sm font-bold text-white shadow-lg shadow-[#0071e3]/20 transition-all hover:opacity-90 active:scale-[0.98]"
+                      >
+                        进入我的工作台查看进度
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setCurrentStep(1);
+                          setSelectedDataset(null);
+                          setAnalysisState("idle");
+                        }}
+                        className="rounded-2xl border border-black/[0.08] bg-white py-4 text-sm font-bold text-[#1d1d1f] transition-all hover:bg-black/[0.02]"
+                      >
+                        继续发布新任务
+                      </button>
+                   </div>
                 </div>
-                <ul className="space-y-2 text-xs text-[#86868b]">
-                  <li>• 只能选择已上传并处理完成的数据集</li>
-                  <li>• 数据集处理包括格式化、质检、AI预分析</li>
-                  <li>• 一次发布，自动生成二级质控流程</li>
-                  <li>• 预算透明，系统自动按比例拆分</li>
-                  <li>• 任务单联动，复审自动等待初审完成</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
     </main>

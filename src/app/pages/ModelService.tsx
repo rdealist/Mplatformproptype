@@ -885,9 +885,7 @@ export default function ModelService() {
                             <CheckCircle2 className="h-4.5 w-4.5 text-[#0071e3]" />
                           )}
                         </div>
-                        <p className="text-[11px] text-[#86868b] leading-relaxed mb-3.5 line-clamp-2 px-0.5">
-                          {model.description}
-                        </p>
+
                         <div className="flex flex-wrap gap-1.5 mt-auto px-0.5">
                           {model.tags.map((tag) => (
                             <span key={tag} className="px-2 py-0.5 rounded-lg bg-[#f5f5f7] text-[9px] font-bold text-[#86868b] border border-black/[0.02]">

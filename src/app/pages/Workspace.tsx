@@ -30,7 +30,10 @@ import {
   EyeOff,
   ExternalLink,
   Settings,
-  X
+  X,
+  Eye,
+  ArrowDownCircle,
+  PlayCircle
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
@@ -46,22 +49,23 @@ import {
 } from "recharts";
 import { motion, AnimatePresence } from "motion/react";
 
-type MainStreamTab = "activity" | "tasks" | "datasets";
-type DatasetFilter = "all" | "published" | "purchased";
+type MainStreamTab = "tasks" | "datasets" | "activity";
+type DatasetFilter = "all" | "purchased" | "uploaded" | "commissioned";
 type TaskFilter = "all" | "published" | "joined";
+type TaskTypeFilter = "all" | "annotation" | "review";
 
 interface DatasetItem {
   id: string;
   name: string;
-  type: "published" | "purchased";
-  status: string;
+  category: "purchased" | "uploaded" | "commissioned";
+  status: string; // 公开, 私有, 已展示, 已下架, 等
+  isPublic?: boolean;
+  isPublished?: boolean; // 上架状态
   samples: string;
   downloads?: number;
-  rating?: number;
   date: string;
   owner?: string;
-  isPublic?: boolean;
-  sourceType?: "native" | "external";
+  sourceType: "native" | "external";
   attributes?: {
     isDownloadable: boolean;
     isTaskable: boolean;
@@ -69,24 +73,36 @@ interface DatasetItem {
   };
 }
 
+interface TaskItem {
+  id: string;
+  title: string;
+  category: "published" | "joined";
+  type: "annotation" | "review";
+  status: string;
+  reward: string;
+  progress: number;
+  participants?: string;
+  deadline?: string;
+}
+
 export default function Workspace() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<MainStreamTab>("activity");
+  const [activeTab, setActiveTab] = useState<MainStreamTab>("tasks");
   const [datasetFilter, setDatasetFilter] = useState<DatasetFilter>("all");
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
+  const [taskTypeFilter, setTaskTypeFilter] = useState<TaskTypeFilter>("all");
   const [selectedDataset, setSelectedDataset] = useState<DatasetItem | null>(null);
 
   const [datasets, setDatasets] = useState<DatasetItem[]>([
     {
       id: "D001",
       name: "肺结节CT训练数据集",
-      type: "published",
-      status: "公开",
+      category: "uploaded",
+      status: "已上架",
       isPublic: true,
+      isPublished: true,
       sourceType: "native",
       samples: "1,200",
-      downloads: 45,
-      rating: 9.6,
       date: "2026-05-20",
       attributes: {
         isDownloadable: true,
@@ -97,13 +113,12 @@ export default function Workspace() {
     {
       id: "D002",
       name: "胸部低剂量CT随访序列",
-      type: "published",
+      category: "uploaded",
       status: "私有",
       isPublic: false,
+      isPublished: false,
       sourceType: "native",
       samples: "850",
-      downloads: 0,
-      rating: 0,
       date: "2026-06-10",
       attributes: {
         isDownloadable: false,
@@ -114,9 +129,10 @@ export default function Workspace() {
     {
       id: "D003",
       name: "OASIS-3 脑成像外链数据集",
-      type: "published",
-      status: "已展示",
+      category: "commissioned",
+      status: "展示中",
       isPublic: true,
+      isPublished: true,
       sourceType: "external",
       samples: "2,100",
       date: "2026-06-11",
@@ -124,8 +140,9 @@ export default function Workspace() {
     {
       id: "PD001",
       name: "全球眼底硬性渗出数据集",
-      type: "purchased",
+      category: "purchased",
       status: "已下载",
+      sourceType: "native",
       samples: "2,500",
       owner: "北京协和医院",
       date: "2026-05-10",
@@ -139,7 +156,23 @@ export default function Workspace() {
         return {
           ...ds,
           isPublic: nextPublic,
-          status: ds.sourceType === 'external' ? '已展示' : (nextPublic ? "公开" : "私有")
+          status: ds.isPublished ? (nextPublic ? "已上架" : "已上架(私有)") : (nextPublic ? "公开" : "私有")
+        };
+      }
+      return ds;
+    }));
+  };
+
+  const togglePublishStatus = (id: string) => {
+    setDatasets(prev => prev.map(ds => {
+      if (ds.id === id) {
+        const nextPublished = !ds.isPublished;
+        return {
+          ...ds,
+          isPublished: nextPublished,
+          status: nextPublished 
+            ? (ds.category === 'commissioned' ? "展示中" : (ds.isPublic ? "已上架" : "已上架(私有)")) 
+            : "已下架"
         };
       }
       return ds;
@@ -155,11 +188,12 @@ export default function Workspace() {
     { month: "6月", labelPoints: 3100, reviewPoints: 900 },
   ];
 
-  const myTasks = [
+  const myTasks: TaskItem[] = [
     {
       id: "T001",
       title: "肺结节良恶性标注任务单",
       category: "published",
+      type: "annotation",
       status: "进行中",
       reward: "5,000",
       progress: 60,
@@ -169,18 +203,31 @@ export default function Workspace() {
       id: "T101",
       title: "视网膜病变分级标注任务单",
       category: "joined",
+      type: "annotation",
       status: "进行中",
       reward: "3,500",
       progress: 75,
       deadline: "2026-06-15",
+    },
+    {
+      id: "T201",
+      title: "冠脉钙化积分审核任务",
+      category: "joined",
+      type: "review",
+      status: "待处理",
+      reward: "2,400",
+      progress: 0,
     }
   ];
 
   const statusStyles: Record<string, string> = {
     公开: "text-[#34c759] bg-[#34c759]/[0.08]",
+    已上架: "text-[#34c759] bg-[#34c759]/[0.08]",
     私有: "text-[#ff9500] bg-[#ff9500]/[0.08]",
-    已展示: "text-[#ff9500] bg-[#ff9500]/[0.08]",
+    已下架: "text-[#ff3b30] bg-[#ff3b30]/[0.08]",
+    展示中: "text-[#0071e3] bg-[#0071e3]/[0.08]",
     进行中: "text-[#0071e3] bg-[#0071e3]/[0.08]",
+    待处理: "text-[#ff9500] bg-[#ff9500]/[0.08]",
     已下载: "text-[#af52de] bg-[#af52de]/[0.08]",
     已完成: "text-[#86868b] bg-black/[0.04]",
   };
@@ -199,10 +246,10 @@ export default function Workspace() {
       `}} />
 
       <div className="mx-auto max-w-[1400px] px-6 lg:px-12 py-10">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+        <div className="flex flex-col gap-10 lg:flex-row items-start">
           
-          {/* ── Left Sidebar: Profile & Quick Links ── */}
-          <aside className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
+          {/* ── Left Sidebar (Column 1) ── */}
+          <aside className="w-full lg:w-[320px] shrink-0 space-y-6 lg:sticky lg:top-4">
             {/* Profile Card */}
             <section className="rounded-[32px] border border-black/[0.06] bg-white/80 backdrop-blur-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
               <div className="flex flex-col items-center text-center">
@@ -246,7 +293,7 @@ export default function Workspace() {
                   <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
                     <Upload className="h-5 w-5" />
                   </div>
-                  <span className="font-bold text-sm tracking-tight text-left">机构上传<br/><span className="text-[10px] opacity-70 font-medium">Native Upload</span></span>
+                  <span className="font-bold text-sm tracking-tight text-left">上传数据集<br/><span className="text-[10px] opacity-70 font-medium tracking-normal">Native Upload</span></span>
                 </div>
                 <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
               </button>
@@ -259,7 +306,7 @@ export default function Workspace() {
                   <div className="h-10 w-10 rounded-xl bg-[#ff9500]/10 flex items-center justify-center">
                     <ExternalLink className="h-5 w-5" />
                   </div>
-                  <span className="font-bold text-sm tracking-tight text-left">上架第三方数据集<br/><span className="text-[10px] opacity-70 font-medium">Commissioned Display</span></span>
+                  <span className="font-bold text-sm tracking-tight text-left">委托平台展示<br/><span className="text-[10px] opacity-70 font-medium tracking-normal">Commissioned Display</span></span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-[#ff9500]/40 group-hover:text-[#ff9500] transition-all" />
               </button>
@@ -283,10 +330,28 @@ export default function Workspace() {
                 </button>
               ))}
             </section>
+
+            {/* Level Progress */}
+            <section className="rounded-[32px] border border-black/[0.06] bg-white/80 backdrop-blur-2xl p-7 shadow-sm">
+              <div className="flex items-center justify-between mb-6 px-1">
+                <h3 className="text-[12px] font-bold text-[#86868b] uppercase tracking-[0.2em]">等级进化</h3>
+                <ShieldCheck className="h-5 w-5 text-[#0071e3]" />
+              </div>
+              <div className="relative h-2.5 w-full rounded-full bg-black/[0.04] overflow-hidden shadow-inner mb-4">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${expPercentage}%` }}
+                  className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full shadow-[0_0_12px_rgba(0,113,227,0.3)]"
+                />
+              </div>
+              <p className="text-[12px] text-[#86868b] font-medium leading-[1.6] text-center">
+                距离晋升还需 <span className="font-bold text-[#1d1d1f]">{nextLevelExp - currentExp}</span> 经验
+              </p>
+            </section>
           </aside>
 
-          {/* ── Middle: Main Content Stream ── */}
-          <main className="lg:col-span-6 space-y-8">
+          {/* ── Right Content Area (Column 2) ── */}
+          <main className="flex-1 space-y-8 min-w-0">
             {/* Greeting */}
             <div className="pt-2">
               <motion.h1 
@@ -301,14 +366,18 @@ export default function Workspace() {
 
             {/* Tab Navigation */}
             <div className="flex items-center gap-10 border-b border-black/[0.06]">
-              {["activity", "tasks", "datasets"].map((tab) => (
+              {[
+                { id: "tasks", label: "我的任务" },
+                { id: "datasets", label: "我的数据集" },
+                { id: "activity", label: "我的收益" }
+              ].map((tab) => (
                 <button 
-                  key={`tab-btn-${tab}`}
-                  onClick={() => setActiveTab(tab as MainStreamTab)}
-                  className={`relative pb-4 text-[16px] font-bold transition-all ${activeTab === tab ? "text-[#0071e3]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+                  key={`tab-btn-${tab.id}`}
+                  onClick={() => setActiveTab(tab.id as MainStreamTab)}
+                  className={`relative pb-4 text-[16px] font-bold transition-all ${activeTab === tab.id ? "text-[#0071e3]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
                 >
-                  {tab === "activity" ? "收益概览" : tab === "tasks" ? "我的任务" : "数据集"}
-                  {activeTab === tab && (
+                  {tab.label}
+                  {activeTab === tab.id && (
                     <motion.div 
                       layoutId="workspace-tab" 
                       className="absolute bottom-0 left-0 h-0.5 w-full bg-[#0071e3] rounded-full shadow-[0_-2px_8px_rgba(0,113,227,0.4)]" 
@@ -320,6 +389,208 @@ export default function Workspace() {
 
             {/* Dynamic Content */}
             <AnimatePresence mode="wait">
+              {activeTab === "tasks" && (
+                <motion.section 
+                  key="tasks"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  className="space-y-6"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div className="flex gap-1.5 p-1 bg-black/[0.04] rounded-full w-fit">
+                      {[
+                        { id: "all", label: "全部任务" },
+                        { id: "published", label: "我发布的" },
+                        { id: "joined", label: "我领取的" }
+                      ].map(f => (
+                        <button 
+                          key={`task-f-${f.id}`}
+                          onClick={() => setTaskFilter(f.id as TaskFilter)}
+                          className={`px-5 py-2 text-[11px] font-bold rounded-full transition-all ${taskFilter === f.id ? "bg-white shadow-md text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-1.5 p-1 bg-black/[0.02] rounded-full w-fit border border-black/[0.04]">
+                      {[
+                        { id: "all", label: "全部类型" },
+                        { id: "annotation", label: "标注任务" },
+                        { id: "review", label: "审核任务" }
+                      ].map(f => (
+                        <button 
+                          key={`task-type-f-${f.id}`}
+                          onClick={() => setTaskTypeFilter(f.id as TaskTypeFilter)}
+                          className={`px-4 py-1.5 text-[10px] font-bold rounded-full transition-all ${taskTypeFilter === f.id ? "bg-[#0071e3] text-white" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {myTasks
+                      .filter(task => (taskFilter === "all" || task.category === taskFilter) && (taskTypeFilter === "all" || task.type === taskTypeFilter))
+                      .map(task => (
+                      <div key={`task-row-${task.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-7 transition-all hover:border-[#0071e3]/30 hover:shadow-xl">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                              <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${task.type === 'annotation' ? 'bg-[#5ac8fa]/10 text-[#0071e3]' : 'bg-[#af52de]/10 text-[#af52de]'}`}>
+                                {task.type === 'annotation' ? '标注任务' : '审核任务'}
+                              </span>
+                              <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${task.category === 'published' ? 'bg-black/[0.04] text-[#86868b]' : 'bg-[#34c759]/10 text-[#34c759]'}`}>
+                                {task.category === 'published' ? '我发布的' : '我领取的'}
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-lg tracking-tight mb-4 group-hover:text-[#0071e3] transition-colors">{task.title}</h4>
+                            <div className="flex items-center gap-6">
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="h-4 w-4 text-[#0071e3]" />
+                                <span className="text-[13px] font-bold text-[#0071e3]">{task.reward} 积分</span>
+                              </div>
+                              <div className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-tight ${statusStyles[task.status as keyof typeof statusStyles]}`}>
+                                {task.status}
+                              </div>
+                            </div>
+                          </div>
+                          <button className="h-10 w-10 rounded-full bg-black/[0.04] flex items-center justify-center transition-all group-hover:bg-[#0071e3] group-hover:text-white group-hover:scale-110">
+                            <ArrowRight className="h-5 w-5" />
+                          </button>
+                        </div>
+                        <div className="mt-8">
+                          <div className="flex justify-between items-end text-[11px] font-bold mb-2 px-0.5">
+                            <span className="text-[#86868b] uppercase tracking-wider">当前处理进度</span>
+                            <span className="text-[#0071e3]">{task.progress}%</span>
+                          </div>
+                          <div className="h-2 w-full rounded-full bg-black/[0.04] overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${task.progress}%` }}
+                              className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.section>
+              )}
+
+              {activeTab === "datasets" && (
+                <motion.section 
+                  key="datasets"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  className="space-y-6"
+                >
+                  <div className="flex gap-1.5 p-1 bg-black/[0.04] rounded-full w-fit mb-4">
+                    {[
+                      { id: "all", label: "全部" },
+                      { id: "uploaded", label: "我上传的" },
+                      { id: "purchased", label: "我购入的" },
+                      { id: "commissioned", label: "委托展示" }
+                    ].map(f => (
+                      <button 
+                        key={`ds-f-${f.id}`}
+                        onClick={() => setDatasetFilter(f.id as DatasetFilter)}
+                        className={`px-5 py-2 text-[11px] font-bold rounded-full transition-all ${datasetFilter === f.id ? "bg-white shadow-md text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {datasets
+                      .filter(ds => datasetFilter === "all" || ds.category === datasetFilter)
+                      .map(ds => (
+                      <div key={`ds-row-${ds.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-6 transition-all hover:border-[#0071e3]/30 hover:shadow-lg">
+                        <div className="flex gap-5">
+                          <div className={`h-16 w-16 shrink-0 rounded-[20px] flex items-center justify-center group-hover:scale-110 transition-transform ${
+                            ds.category === 'commissioned' ? 'bg-[#ff9500]/[0.08]' : 'bg-[#0071e3]/[0.08]'
+                          }`}>
+                            {ds.category === 'commissioned' ? <ExternalLink className="h-8 w-8 text-[#ff9500]" /> : <Database className="h-8 w-8 text-[#0071e3]" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-bold text-lg tracking-tight truncate group-hover:text-[#0071e3] transition-colors">{ds.name}</h4>
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${statusStyles[ds.status as keyof typeof statusStyles]}`}>
+                                {ds.status}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px] font-medium text-[#86868b]">
+                              <span className="flex items-center gap-1.5"><Layers className="h-3.5 w-3.5" />{ds.samples}</span>
+                              {ds.owner && <span className="flex items-center gap-1.5 truncate max-w-[120px]"><Users className="h-3.5 w-3.5" />{ds.owner}</span>}
+                              <span>{ds.date}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-6 flex flex-wrap justify-end gap-2 pt-4 border-t border-black/[0.04]">
+                          {ds.category === "uploaded" && (
+                            <>
+                              <button 
+                                onClick={() => toggleVisibility(ds.id)}
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                                  ds.isPublic 
+                                    ? "border-black/[0.08] text-[#1d1d1f] hover:bg-black/[0.02]" 
+                                    : "border-[#0071e3]/20 bg-[#0071e3]/[0.04] text-[#0071e3] hover:bg-[#0071e3]/[0.08]"
+                                }`}
+                              >
+                                {ds.isPublic ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                {ds.isPublic ? "设为私有" : "设置公开"}
+                              </button>
+                              <button 
+                                onClick={() => togglePublishStatus(ds.id)}
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                                  ds.isPublished 
+                                    ? "border-[#ff3b30]/20 bg-[#ff3b30]/[0.04] text-[#ff3b30] hover:bg-[#ff3b30]/[0.08]" 
+                                    : "border-[#34c759]/20 bg-[#34c759]/[0.04] text-[#34c759] hover:bg-[#34c759]/[0.08]"
+                                }`}
+                              >
+                                {ds.isPublished ? <ArrowDownCircle className="h-3 w-3" /> : <PlayCircle className="h-3 w-3" />}
+                                {ds.isPublished ? "下架" : "上架"}
+                              </button>
+                            </>
+                          )}
+
+                          {ds.category === "commissioned" && (
+                            <button 
+                              onClick={() => togglePublishStatus(ds.id)}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                                ds.isPublished 
+                                  ? "border-[#ff3b30]/20 bg-[#ff3b30]/[0.04] text-[#ff3b30] hover:bg-[#ff3b30]/[0.08]" 
+                                  : "border-[#34c759]/20 bg-[#34c759]/[0.04] text-[#34c759] hover:bg-[#34c759]/[0.08]"
+                              }`}
+                            >
+                              {ds.isPublished ? <ArrowDownCircle className="h-3 w-3" /> : <PlayCircle className="h-3 w-3" />}
+                              {ds.isPublished ? "下架" : "上架展示"}
+                            </button>
+                          )}
+
+                          <button 
+                            onClick={() => setSelectedDataset(ds)}
+                            className="px-4 py-2 rounded-xl border border-black/[0.08] text-[10px] font-bold text-[#1d1d1f] hover:bg-black/[0.04] transition-all"
+                          >
+                            查看明细
+                          </button>
+
+                          {ds.category !== "commissioned" && (
+                            <button className="px-4 py-2 rounded-xl bg-[#0071e3] text-white text-[10px] font-bold shadow-[0_4px_12px_rgba(0,113,227,0.2)] hover:opacity-90 transition-all">
+                              去标注
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.section>
+              )}
+
               {activeTab === "activity" && (
                 <motion.section 
                   key="activity"
@@ -338,7 +609,7 @@ export default function Workspace() {
                         <h3 className="font-bold text-lg tracking-tight">积分收益趋势</h3>
                       </div>
                     </div>
-                    <div className="h-[280px] w-full mt-2">
+                    <div className="h-[320px] w-full mt-2">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={revenueData} key="revenue-chart">
                           <defs key="chart-defs">
@@ -389,155 +660,8 @@ export default function Workspace() {
                   </div>
                 </motion.section>
               )}
-
-              {activeTab === "tasks" && (
-                <motion.section 
-                  key="tasks"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  className="space-y-5"
-                >
-                  {myTasks
-                    .filter(task => taskFilter === "all" || task.category === taskFilter)
-                    .map(task => (
-                    <div key={`task-row-${task.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-7 transition-all hover:border-[#0071e3]/30 hover:shadow-xl hover:scale-[1.01]">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-4 mb-5">
-                            <h4 className="font-bold text-xl tracking-tight truncate">{task.title}</h4>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-tight ${statusStyles[task.status as keyof typeof statusStyles]}`}>
-                              {task.status}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2">
-                              <CreditCard className="h-4 w-4 text-[#0071e3]" />
-                              <span className="text-[13px] font-bold text-[#0071e3]">{task.reward} 积分</span>
-                            </div>
-                          </div>
-                        </div>
-                        <button className="h-10 w-10 rounded-full bg-black/[0.04] flex items-center justify-center transition-all group-hover:bg-[#0071e3] group-hover:text-white group-hover:scale-110">
-                          <ArrowRight className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <div className="mt-8">
-                        <div className="flex justify-between items-end text-[11px] font-bold mb-2 px-0.5">
-                          <span className="text-[#86868b] uppercase tracking-wider">当前处理进度</span>
-                          <span className="text-[#0071e3]">{task.progress}%</span>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-black/[0.04] overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${task.progress}%` }}
-                            className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full" 
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </motion.section>
-              )}
-
-              {activeTab === "datasets" && (
-                <motion.section 
-                  key="datasets"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  className="space-y-5"
-                >
-                  <div className="flex gap-1.5 p-1 bg-black/[0.04] rounded-full w-fit mb-4">
-                    {[
-                      { id: "all", label: "全部" },
-                      { id: "published", label: "已上传" },
-                      { id: "purchased", label: "已购入" }
-                    ].map(f => (
-                      <button 
-                        key={`ds-f-${f.id}`}
-                        onClick={() => setDatasetFilter(f.id as DatasetFilter)}
-                        className={`px-5 py-2 text-[11px] font-bold rounded-full transition-all ${datasetFilter === f.id ? "bg-white shadow-md text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {datasets
-                    .filter(ds => datasetFilter === "all" || ds.type === datasetFilter)
-                    .map(ds => (
-                    <div key={`ds-row-${ds.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-6 transition-all hover:border-[#0071e3]/30 hover:shadow-lg">
-                      <div className="flex gap-5">
-                        <div className={`h-16 w-16 shrink-0 rounded-[20px] flex items-center justify-center group-hover:scale-110 transition-transform ${
-                          ds.sourceType === 'external' ? 'bg-[#ff9500]/[0.08]' : 'bg-[#0071e3]/[0.08]'
-                        }`}>
-                          {ds.sourceType === 'external' ? <ExternalLink className="h-8 w-8 text-[#ff9500]" /> : <Database className="h-8 w-8 text-[#0071e3]" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-bold text-lg tracking-tight truncate">{ds.name}</h4>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${statusStyles[ds.status as keyof typeof statusStyles]}`}>
-                              {ds.status}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-5 text-[12px] font-medium text-[#86868b]">
-                            <span className="flex items-center gap-1.5"><Layers className="h-3.5 w-3.5" />样本: {ds.samples}</span>
-                            {ds.owner && <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{ds.owner}</span>}
-                            <span>{ds.date}</span>
-                            {ds.sourceType === 'external' && <span className="flex items-center gap-1.5 text-[#ff9500] font-bold"><Globe className="h-3.5 w-3.5" />委托展示</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-black/[0.04]">
-                        {ds.type === "published" && ds.sourceType !== 'external' && (
-                          <button 
-                            onClick={() => toggleVisibility(ds.id)}
-                            className={`flex items-center gap-2 px-5 py-2 rounded-xl border text-[12px] font-bold transition-all ${
-                              ds.isPublic 
-                                ? "border-black/[0.08] text-[#1d1d1f] hover:bg-black/[0.02]" 
-                                : "border-[#0071e3]/20 bg-[#0071e3]/[0.04] text-[#0071e3] hover:bg-[#0071e3]/[0.08]"
-                            }`}
-                          >
-                            {ds.isPublic ? <><EyeOff className="h-3.5 w-3.5" />设为私有</> : <><Globe className="h-3.5 w-3.5" />公开数据集</>}
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => setSelectedDataset(ds)}
-                          className="px-6 py-2 rounded-xl border border-black/[0.08] text-[12px] font-bold text-[#1d1d1f] hover:bg-black/[0.04] transition-all"
-                        >
-                          查看明细
-                        </button>
-                        <button className="px-6 py-2 rounded-xl bg-[#0071e3] text-white text-[12px] font-bold shadow-[0_4px_12px_rgba(0,113,227,0.2)] hover:opacity-90 transition-all">
-                          去标注
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </motion.section>
-              )}
             </AnimatePresence>
           </main>
-
-          {/* ── Right Sidebar: Progress & History ── */}
-          <aside className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
-            {/* Level Progress */}
-            <section className="rounded-[32px] border border-black/[0.06] bg-white/80 backdrop-blur-2xl p-7 shadow-sm">
-              <div className="flex items-center justify-between mb-6 px-1">
-                <h3 className="text-[12px] font-bold text-[#86868b] uppercase tracking-[0.2em]">等级进化</h3>
-                <ShieldCheck className="h-5 w-5 text-[#0071e3]" />
-              </div>
-              <div className="relative h-2.5 w-full rounded-full bg-black/[0.04] overflow-hidden shadow-inner mb-4">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${expPercentage}%` }}
-                  className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full shadow-[0_0_12px_rgba(0,113,227,0.3)]"
-                />
-              </div>
-              <p className="text-[12px] text-[#86868b] font-medium leading-[1.6] text-center">
-                距离晋升还需 <span className="font-bold text-[#1d1d1f]">{nextLevelExp - currentExp}</span> 经验
-              </p>
-            </section>
-          </aside>
         </div>
       </div>
 
@@ -609,7 +733,7 @@ export default function Workspace() {
                         </div>
                         <p className="text-[13px] text-[#86868b] leading-relaxed">
                           该数据集已配置为第三方委托展示，点击“去购买”将跳转至外部链接：<br/>
-                          <span className="text-[#ff9500] underline font-medium cursor-pointer">https://oasis-brain.org/buy/D003</span>
+                          <span className="text-[#ff9500] underline font-medium cursor-pointer">https://oasis-brain.org/buy/{selectedDataset.id}</span>
                         </p>
                       </div>
                     ) : (

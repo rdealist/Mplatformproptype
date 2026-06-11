@@ -93,156 +93,6 @@ const requirements: Record<string, string[]> = {
   ],
 };
 
-// ─── CSS Annotation Illustration ─────────────────────────────────────────────
-function AnnotationIllustration({ type, modality }: { type: string; modality: string }) {
-  const isDark = ['CT','MRI','X-Ray','US','ECG','EEG','OCT'].includes(modality);
-  const bg = isDark ? '#06070f' : '#f5f0eb';
-
-  if (type === '分割标注') {
-    return (
-      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl" style={{ background: bg }}>
-        {/* Base image hint */}
-        <div className="absolute" style={{ width: 220, height: 200, borderRadius: '50%', background: isDark ? 'radial-gradient(circle, #1e2030 0%, #0a0a14 100%)' : 'radial-gradient(circle, #e8d5c0 0%, #d4b89a 100%)' }} />
-        {/* Segmentation mask */}
-        <svg className="absolute" viewBox="0 0 280 260" width="280" height="260">
-          <path d="M 140 80 Q 180 70 210 110 Q 230 140 210 175 Q 185 210 150 215 Q 115 218 90 195 Q 65 168 72 135 Q 80 100 110 82 Z"
-            fill="rgba(0,113,227,0.18)" stroke="#0071e3" strokeWidth="2.5" strokeDasharray="6 3" />
-          <path d="M 140 80 Q 180 70 210 110 Q 230 140 210 175 Q 185 210 150 215 Q 115 218 90 195 Q 65 168 72 135 Q 80 100 110 82 Z"
-            fill="none" stroke="rgba(0,113,227,0.4)" strokeWidth="1" />
-        </svg>
-        {/* Label chip */}
-        <div className="absolute top-6 right-6 rounded-lg bg-[#0071e3] px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg">
-          病变区域 #1
-        </div>
-        {/* Crosshair points */}
-        {[[140,80],[210,110],[210,175],[150,215],[90,195],[72,135],[110,82]].map(([x,y],i) => (
-          <div key={i} className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#0071e3] shadow-md"
-            style={{ left: `${x/280*100}%`, top: `${y/260*100}%` }} />
-        ))}
-        <div className="absolute bottom-4 left-4 text-[10px] font-mono text-white/40">多边形工具  ·  {isDark ? modality : '病理'}</div>
-      </div>
-    );
-  }
-
-  if (type === '检测标注') {
-    return (
-      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl" style={{ background: bg }}>
-        <div className="absolute" style={{ width: 240, height: 220, borderRadius: '50%', background: isDark ? 'radial-gradient(circle, #1a1a28 0%, #080810 100%)' : 'radial-gradient(circle, #e8d5c0 0%, #caa880 100%)' }} />
-        {/* Detection boxes */}
-        <div className="absolute border-2 border-[#ff9500] bg-[#ff9500]/10" style={{ left: '22%', top: '20%', width: '28%', height: '32%' }}>
-          <div className="absolute -top-5 left-0 rounded bg-[#ff9500] px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap">结节 0.94</div>
-        </div>
-        <div className="absolute border-2 border-[#34c759] bg-[#34c759]/10" style={{ left: '54%', top: '38%', width: '22%', height: '26%' }}>
-          <div className="absolute -top-5 left-0 rounded bg-[#34c759] px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap">结节 0.87</div>
-        </div>
-        <div className="absolute border-2 border-[#ff3b30] bg-[#ff3b30]/10" style={{ left: '35%', top: '58%', width: '18%', height: '22%' }}>
-          <div className="absolute -top-5 left-0 rounded bg-[#ff3b30] px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap">可疑 0.62</div>
-        </div>
-        <div className="absolute bottom-4 left-4 text-[10px] font-mono text-white/40">矩形框工具  ·  {modality}</div>
-      </div>
-    );
-  }
-
-  if (type === '关键点标注') {
-    const pts = [[90,100],[120,75],[155,68],[185,80],[200,110],[195,145],[170,165],[140,170],[108,160],[85,138],[82,115]];
-    return (
-      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl" style={{ background: bg }}>
-        <div className="absolute" style={{ width: 220, height: 220, borderRadius: '50%', background: isDark ? 'radial-gradient(circle, #1a1a28 0%, #080810 100%)' : 'radial-gradient(circle, #e0d0b8 0%, #c8b090 100%)' }} />
-        <svg className="absolute" viewBox="0 0 280 260" width="280" height="260">
-          <polyline points={pts.map(([x,y]) => `${x},${y}`).join(' ')} fill="none" stroke="#0071e3" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.6" />
-          {pts.map(([x,y],i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r="6" fill="#0071e3" stroke="white" strokeWidth="2" />
-              <text x={x+9} y={y+4} fontSize="9" fill="#0071e3" fontWeight="600">{i+1}</text>
-            </g>
-          ))}
-        </svg>
-        <div className="absolute bottom-4 left-4 text-[10px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }}>关键点工具  ·  {modality}</div>
-      </div>
-    );
-  }
-
-  if (type === '视频标注') {
-    return (
-      <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-[#06070f] px-8">
-        {/* Film strip */}
-        <div className="mb-4 flex w-full gap-2">
-          {[0,1,2,3,4,5,6].map(i => (
-            <div key={i} className={`flex-1 rounded overflow-hidden border ${i===2 || i===5 ? 'border-[#ff9500] bg-[#ff9500]/20' : 'border-white/10 bg-white/[0.04]'}`} style={{ aspectRatio: '4/3' }}>
-              {(i===2||i===5) && <div className="h-full w-full flex items-center justify-center"><div className="h-2 w-2 rounded-full bg-[#ff9500]" /></div>}
-            </div>
-          ))}
-        </div>
-        {/* Timeline */}
-        <div className="w-full">
-          <div className="relative h-8 w-full rounded-lg bg-white/[0.04] border border-white/[0.08]">
-            {/* Playhead */}
-            <div className="absolute top-0 bottom-0 w-0.5 bg-white/60" style={{ left: '32%' }}>
-              <div className="absolute -top-1.5 -left-1 h-3 w-2 bg-white rounded-sm" />
-            </div>
-            {/* Event segments */}
-            <div className="absolute top-1.5 bottom-1.5 rounded bg-[#ff9500]/50 border border-[#ff9500]/60" style={{ left: '28%', width: '8%' }} />
-            <div className="absolute top-1.5 bottom-1.5 rounded bg-[#0071e3]/50 border border-[#0071e3]/60" style={{ left: '55%', width: '12%' }} />
-            <div className="absolute top-1.5 bottom-1.5 rounded bg-[#34c759]/50 border border-[#34c759]/60" style={{ left: '75%', width: '6%' }} />
-          </div>
-          <div className="mt-2 flex justify-between text-[9px] font-mono text-white/30">
-            <span>00:00</span><span>00:15</span><span>00:30</span><span>00:45</span><span>01:00</span>
-          </div>
-        </div>
-        <div className="absolute top-4 right-4 flex gap-2">
-          {['切割','缝合','止血'].map((l,i) => (
-            <div key={l} className="rounded px-1.5 py-0.5 text-[9px] font-medium text-white" style={{ background: ['#ff9500','#0071e3','#34c759'][i] + '99' }}>{l}</div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (type === '分类标注') {
-    return (
-      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl" style={{ background: bg }}>
-        <div className="absolute" style={{ width: 220, height: 200, borderRadius: '50%', background: isDark ? 'radial-gradient(circle, #1a1a28 0%, #080810 100%)' : 'radial-gradient(circle, #e8d5c0 0%, #d4b89a 100%)' }} />
-        {/* Classification panel */}
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-36 space-y-2">
-          {[
-            { label: '良性', selected: false, color: '#34c759' },
-            { label: '恶性', selected: true,  color: '#ff3b30' },
-            { label: '不确定', selected: false, color: '#ff9500' },
-          ].map(opt => (
-            <div key={opt.label} className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-medium transition-all ${opt.selected ? 'border-[#0071e3]/40 bg-[#0071e3]/[0.12] text-[#0071e3]' : 'border-white/10 bg-white/[0.04] text-white/50'}`}>
-              <div className={`h-3.5 w-3.5 rounded-full border-2 ${opt.selected ? 'border-[#0071e3] bg-[#0071e3]' : 'border-white/30'}`} />
-              {opt.label}
-              {opt.selected && <CheckCircle2 className="ml-auto h-3 w-3 text-[#0071e3]" />}
-            </div>
-          ))}
-        </div>
-        <div className="absolute bottom-4 left-4 text-[10px] font-mono text-white/40">分类工具  ·  {modality}</div>
-      </div>
-    );
-  }
-
-  // 文本标注 fallback
-  return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-white p-6">
-      <div className="w-full space-y-3">
-        {[
-          { text: '右肺下叶见一枚', highlight: '结节状高密度影', tag: '病变', color: '#0071e3' },
-          { text: '大小约', highlight: '8×6mm', tag: '测量', color: '#ff9500' },
-          { text: '边缘', highlight: '毛糙，可见分叶', tag: '形态', color: '#34c759' },
-        ].map((row, i) => (
-          <div key={i} className="flex flex-wrap items-baseline gap-1 text-sm leading-relaxed text-[#1d1d1f]">
-            <span>{row.text}</span>
-            <span className="relative rounded px-1 py-0.5 font-medium" style={{ background: row.color + '18', color: row.color }}>
-              {row.highlight}
-              <span className="absolute -top-4 left-0 rounded-sm px-1 py-0.5 text-[9px] font-bold text-white" style={{ background: row.color }}>{row.tag}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Countdown to deadline ───────────────────────────────────────────────────
 function useCountdown(deadline: string) {
   const [days, setDays] = useState(0);
@@ -285,7 +135,6 @@ export default function TaskDetail() {
   const progressPct = Math.round((task.progress.current / task.progress.total) * 100);
   const slotsLeft = task.progress.total - task.progress.current;
 
-  const difficultyColor = { '简单': '#34c759', '中等': '#ff9500', '困难': '#ff3b30' }[task.difficulty];
   const statusColor =
     task.status === '招募中' ? '#34c759' :
     task.status === '进行中' ? '#0071e3' : '#86868b';
@@ -324,7 +173,6 @@ export default function TaskDetail() {
               </span>
               <span className="rounded-full bg-black/[0.04] px-3 py-1 text-xs font-medium text-[#1d1d1f]">{task.type}</span>
               <span className="rounded-full bg-[#0071e3]/[0.08] px-3 py-1 text-xs font-medium text-[#0071e3]">{task.level}+</span>
-              <span className="rounded-full px-3 py-1 text-xs font-medium" style={{ background: difficultyColor + '14', color: difficultyColor }}>{task.difficulty}</span>
             </div>
             <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
               {task.title}
@@ -348,14 +196,10 @@ export default function TaskDetail() {
                 </div>
                 <p className="text-sm leading-[1.8] text-[#86868b]">{task.description}</p>
 
-                <div className="mt-6 grid grid-cols-3 gap-4">
+                <div className="mt-6 grid grid-cols-2 gap-4">
                   <div className="rounded-2xl bg-[#fbfbfd] p-4 text-center">
                     <div className="text-2xl font-semibold text-[#0071e3]">{task.reward}</div>
                     <div className="mt-1 text-xs text-[#86868b]">积分/例</div>
-                  </div>
-                  <div className="rounded-2xl bg-[#fbfbfd] p-4 text-center">
-                    <div className="text-2xl font-semibold" style={{ color: difficultyColor }}>{task.difficulty}</div>
-                    <div className="mt-1 text-xs text-[#86868b]">难度等级</div>
                   </div>
                   <div className="rounded-2xl bg-[#fbfbfd] p-4 text-center">
                     <div className="text-2xl font-semibold text-[#1d1d1f]">{daysLeft}</div>
@@ -364,60 +208,17 @@ export default function TaskDetail() {
                 </div>
               </div>
 
-              {/* Annotation illustration */}
-              <div className="rounded-3xl border border-black/[0.08] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="flex items-center gap-2 border-b border-black/[0.06] px-8 py-5">
-                  <Layers className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h2 className="text-[21px] font-semibold">标注示例</h2>
-                  <span className="ml-auto rounded-full bg-[#0071e3]/[0.08] px-3 py-1 text-xs font-medium text-[#0071e3]">{task.type}</span>
-                </div>
-                <div className="h-[300px] p-4">
-                  <AnnotationIllustration type={task.type} modality={task.modality} />
-                </div>
-                <div className="border-t border-black/[0.06] px-8 py-4">
-                  <p className="text-xs text-[#86868b]">以上为系统生成的示例图，实际标注界面在工作台内打开，支持快捷键操作与自动保存。</p>
-                </div>
-              </div>
-
               {/* Requirements */}
               <div className="rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <div className="mb-6 flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h2 className="text-[21px] font-semibold">标注要求</h2>
+                  <h2 className="text-[21px] font-semibold">标注规范说明</h2>
                 </div>
                 <div className="space-y-4">
                   {reqs.map((req, i) => (
                     <div key={i} className="flex items-start gap-4">
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0071e3]/[0.08] text-xs font-semibold text-[#0071e3]">{i + 1}</div>
                       <p className="text-sm leading-[1.7] text-[#86868b]">{req}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="mb-6 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-[#0071e3]" strokeWidth={2} />
-                  <h2 className="text-[21px] font-semibold">任务时间节点</h2>
-                </div>
-                <div className="relative pl-8">
-                  <div className="absolute left-3 top-2 bottom-2 w-px bg-black/[0.06]" />
-                  {[
-                    { label: '任务发布', date: '2026-06-01', done: true },
-                    { label: '招募截止', date: '2026-06-20', done: true },
-                    { label: '标注截止', date: task.deadline, done: false },
-                    { label: '质控审核', date: '结束后 7 天内', done: false },
-                    { label: '积分到账', date: '审核通过后 48h', done: false },
-                  ].map((node, i) => (
-                    <div key={i} className="relative mb-6 last:mb-0">
-                      <div className={`absolute -left-8 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${node.done ? 'border-[#34c759] bg-[#34c759]' : 'border-[#0071e3]/30 bg-white'}`}>
-                        {node.done && <CheckCircle2 className="h-3 w-3 text-white" strokeWidth={3} />}
-                      </div>
-                      <div className="flex items-baseline justify-between">
-                        <span className={`text-sm font-medium ${node.done ? 'text-[#34c759]' : 'text-[#1d1d1f]'}`}>{node.label}</span>
-                        <span className="text-xs text-[#86868b]">{node.date}</span>
-                      </div>
                     </div>
                   ))}
                 </div>
