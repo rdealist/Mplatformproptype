@@ -25,7 +25,12 @@ import {
   CreditCard,
   PieChart as PieChartIcon,
   Layers,
-  Sparkles
+  Sparkles,
+  Globe,
+  EyeOff,
+  ExternalLink,
+  Settings,
+  X
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
@@ -45,57 +50,109 @@ type MainStreamTab = "activity" | "tasks" | "datasets";
 type DatasetFilter = "all" | "published" | "purchased";
 type TaskFilter = "all" | "published" | "joined";
 
+interface DatasetItem {
+  id: string;
+  name: string;
+  type: "published" | "purchased";
+  status: string;
+  samples: string;
+  downloads?: number;
+  rating?: number;
+  date: string;
+  owner?: string;
+  isPublic?: boolean;
+  sourceType?: "native" | "external";
+  attributes?: {
+    isDownloadable: boolean;
+    isTaskable: boolean;
+    isTrainable: boolean;
+  };
+}
+
 export default function Workspace() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<MainStreamTab>("activity");
   const [datasetFilter, setDatasetFilter] = useState<DatasetFilter>("all");
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
+  const [selectedDataset, setSelectedDataset] = useState<DatasetItem | null>(null);
 
-  const revenueData = [
-    { month: "1月", labelPoints: 800, reviewPoints: 400 },
-    { month: "2月", labelPoints: 1200, reviewPoints: 600 },
-    { month: "3月", labelPoints: 2000, reviewPoints: 500 },
-    { month: "4月", labelPoints: 1800, reviewPoints: 800 },
-    { month: "5月", labelPoints: 2600, reviewPoints: 1200 },
-    { month: "6月", labelPoints: 3100, reviewPoints: 900 },
-  ];
-
-  const levelRules = [
-    { level: "Lv.1 初级标注员", range: "0 - 1,000", reward: "基础收益系数 1.0x" },
-    { level: "Lv.2 中级标注员", range: "1,001 - 2,500", reward: "收益系数 1.2x" },
-    { level: "Lv.3 中级标注员", range: "2,501 - 5,000", reward: "收益系数 1.5x" },
-    { level: "Lv.4 中级标注员", range: "5,001 - 8,000", reward: "收益系数 2.0x" },
-    { level: "Lv.5 认证专家", range: "8,001 - 12,000", reward: "2.5x + 审核权限" },
-    { level: "Lv.6 权威专家", range: "12,001 - 17,000", reward: "收益系数 3.5x" },
-  ];
-
-  const pointHistory = [
-    { id: 1, type: "标注", description: "完成 [肺结节CT标注] 任务单", points: "+200", date: "今天 14:30" },
-    { id: 2, type: "审核", description: "通过 [脑部MRI] 任务单审核", points: "+150", date: "昨天 11:20" },
-    { id: 3, type: "上传", description: "上传 [眼底影像] 数据集获奖励", points: "+500", date: "06-08 16:45" },
-    { id: 4, type: "奖励", description: "平台新用户注册礼包", points: "+1000", date: "05-20 09:00" },
-  ];
-
-  const myDatasets = [
+  const [datasets, setDatasets] = useState<DatasetItem[]>([
     {
       id: "D001",
       name: "肺结节CT训练数据集",
       type: "published",
       status: "公开",
+      isPublic: true,
+      sourceType: "native",
       samples: "1,200",
       downloads: 45,
       rating: 9.6,
       date: "2026-05-20",
+      attributes: {
+        isDownloadable: true,
+        isTaskable: true,
+        isTrainable: true
+      }
+    },
+    {
+      id: "D002",
+      name: "胸部低剂量CT随访序列",
+      type: "published",
+      status: "私有",
+      isPublic: false,
+      sourceType: "native",
+      samples: "850",
+      downloads: 0,
+      rating: 0,
+      date: "2026-06-10",
+      attributes: {
+        isDownloadable: false,
+        isTaskable: true,
+        isTrainable: false
+      }
+    },
+    {
+      id: "D003",
+      name: "OASIS-3 脑成像外链数据集",
+      type: "published",
+      status: "已展示",
+      isPublic: true,
+      sourceType: "external",
+      samples: "2,100",
+      date: "2026-06-11",
     },
     {
       id: "PD001",
-      name: "全球眼底硬性渗出金标准集",
+      name: "全球眼底硬性渗出数据集",
       type: "purchased",
       status: "已下载",
       samples: "2,500",
       owner: "北京协和医院",
       date: "2026-05-10",
     }
+  ]);
+
+  const toggleVisibility = (id: string) => {
+    setDatasets(prev => prev.map(ds => {
+      if (ds.id === id) {
+        const nextPublic = !ds.isPublic;
+        return {
+          ...ds,
+          isPublic: nextPublic,
+          status: ds.sourceType === 'external' ? '已展示' : (nextPublic ? "公开" : "私有")
+        };
+      }
+      return ds;
+    }));
+  };
+
+  const revenueData = [
+    { month: "1月", labelPoints: 800, reviewPoints: 400 },
+    { month: "2月", labelPoints: 1200, reviewPoints: 600 },
+    { month: "3月", labelPoints: 2000, reviewPoints: 500 },
+    { month: "4月", labelPoints: 1800, reviewPoints: 800 },
+    { month: "5月", labelPoints: 2600, innerPoints: 1200 },
+    { month: "6月", labelPoints: 3100, reviewPoints: 900 },
   ];
 
   const myTasks = [
@@ -119,8 +176,10 @@ export default function Workspace() {
     }
   ];
 
-  const statusStyles = {
+  const statusStyles: Record<string, string> = {
     公开: "text-[#34c759] bg-[#34c759]/[0.08]",
+    私有: "text-[#ff9500] bg-[#ff9500]/[0.08]",
+    已展示: "text-[#ff9500] bg-[#ff9500]/[0.08]",
     进行中: "text-[#0071e3] bg-[#0071e3]/[0.08]",
     已下载: "text-[#af52de] bg-[#af52de]/[0.08]",
     已完成: "text-[#86868b] bg-black/[0.04]",
@@ -167,16 +226,12 @@ export default function Workspace() {
               </div>
 
               <div className="mt-8 space-y-4 border-t border-black/[0.04] pt-6">
-                <div className="flex justify-between items-center group cursor-pointer">
+                <div className="flex justify-between items-center group cursor-pointer" key="available-points">
                   <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">可用积分</span>
                   <div className="flex items-center gap-1">
                     <span className="text-xl font-bold text-[#1d1d1f] tracking-tight">14,250</span>
                     <ChevronRight className="h-3 w-3 text-black/[0.1] group-hover:text-[#0071e3] transition-colors" />
                   </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] font-bold text-[#86868b] uppercase tracking-wider">本周增长</span>
-                  <span className="text-xs font-bold text-[#34c759] bg-[#34c759]/[0.08] px-2 py-0.5 rounded-lg">+1,200</span>
                 </div>
               </div>
             </section>
@@ -184,24 +239,37 @@ export default function Workspace() {
             {/* Quick Actions */}
             <section className="space-y-3">
               <button 
-                onClick={() => navigate('/publish-data')}
+                onClick={() => navigate('/publish-data?mode=native')}
                 className="group flex w-full items-center justify-between rounded-[24px] bg-[#0071e3] p-5 text-white shadow-[0_4px_16px_rgba(0,113,227,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
                     <Upload className="h-5 w-5" />
                   </div>
-                  <span className="font-bold text-sm tracking-tight">上传数据集</span>
+                  <span className="font-bold text-sm tracking-tight text-left">机构上传<br/><span className="text-[10px] opacity-70 font-medium">Native Upload</span></span>
                 </div>
                 <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              </button>
+
+              <button 
+                onClick={() => navigate('/publish-data?mode=external')}
+                className="group flex w-full items-center justify-between rounded-[24px] border border-[#ff9500]/30 bg-[#ff9500]/[0.03] p-5 text-[#ff9500] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-[#ff9500]/10 flex items-center justify-center">
+                    <ExternalLink className="h-5 w-5" />
+                  </div>
+                  <span className="font-bold text-sm tracking-tight text-left">上架第三方数据集<br/><span className="text-[10px] opacity-70 font-medium">Commissioned Display</span></span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-[#ff9500]/40 group-hover:text-[#ff9500] transition-all" />
               </button>
               
               {[
                 { label: '发布任务单', icon: Target, path: '/publish-task', color: '#0071e3' },
-                { label: '模型工作台', icon: Zap, path: '/model-service', color: '#ff9500' }
+                { label: '模型工作台', icon: Zap, path: '/model-service', color: '#5ac8fa' }
               ].map((btn) => (
                 <button 
-                  key={btn.label}
+                  key={`quick-btn-${btn.label}`}
                   onClick={() => navigate(btn.path)}
                   className="group flex w-full items-center justify-between rounded-[24px] border border-black/[0.06] bg-white/80 backdrop-blur-xl p-4.5 transition-all hover:bg-black/[0.02] hover:scale-[1.01] active:scale-[0.98]"
                 >
@@ -214,37 +282,6 @@ export default function Workspace() {
                   <ChevronRight className="h-4 w-4 text-black/[0.1] group-hover:text-[#1d1d1f] transition-all" />
                 </button>
               ))}
-            </section>
-
-            {/* Week Stats */}
-            <section className="rounded-[32px] border border-black/[0.06] bg-white/80 backdrop-blur-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-5">
-                <Activity className="h-4 w-4 text-[#0071e3]" />
-                <h3 className="text-[11px] font-bold text-[#86868b] uppercase tracking-[0.15em]">本周统计</h3>
-              </div>
-              <div className="space-y-5">
-                <div>
-                  <div className="flex justify-between text-[11px] font-bold mb-1.5 px-0.5">
-                    <span className="text-[#86868b]">标注任务进度</span>
-                    <span className="text-[#0071e3]">78%</span>
-                  </div>
-                  <div className="h-1.5 w-full rounded-full bg-black/[0.04] overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: "78%" }}
-                      className="h-full bg-[#0071e3] rounded-full"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between items-center text-[11px] font-bold px-0.5">
-                  <span className="text-[#86868b]">活跃时长</span>
-                  <span className="text-[#1d1d1f]">12.5 小时</span>
-                </div>
-                <div className="flex justify-between items-center text-[11px] font-bold px-0.5">
-                  <span className="text-[#86868b]">专家评分</span>
-                  <span className="text-[#34c759]">9.8 / 10</span>
-                </div>
-              </div>
             </section>
           </aside>
 
@@ -266,7 +303,7 @@ export default function Workspace() {
             <div className="flex items-center gap-10 border-b border-black/[0.06]">
               {["activity", "tasks", "datasets"].map((tab) => (
                 <button 
-                  key={tab}
+                  key={`tab-btn-${tab}`}
                   onClick={() => setActiveTab(tab as MainStreamTab)}
                   className={`relative pb-4 text-[16px] font-bold transition-all ${activeTab === tab ? "text-[#0071e3]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
                 >
@@ -300,22 +337,19 @@ export default function Workspace() {
                         </div>
                         <h3 className="font-bold text-lg tracking-tight">积分收益趋势</h3>
                       </div>
-                      <div className="flex items-center gap-1.5 rounded-full bg-black/[0.03] p-1">
-                        <button className="rounded-full bg-white px-4 py-1.5 text-[11px] font-bold shadow-sm">近半年</button>
-                        <button className="px-4 py-1.5 text-[11px] font-bold text-[#86868b] hover:text-[#1d1d1f]">近一年</button>
-                      </div>
                     </div>
                     <div className="h-[280px] w-full mt-2">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={revenueData}>
-                          <defs>
-                            <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#0071e3" stopOpacity={0.12}/>
-                              <stop offset="95%" stopColor="#0071e3" stopOpacity={0}/>
+                        <AreaChart data={revenueData} key="revenue-chart">
+                          <defs key="chart-defs">
+                            <linearGradient id="colorPointsWorkspace" x1="0" y1="0" x2="0" y2="1" key="gradient-points">
+                              <stop offset="5%" stopColor="#0071e3" stopOpacity={0.12} key="stop-1"/>
+                              <stop offset="95%" stopColor="#0071e3" stopOpacity={0} key="stop-2"/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                          <CartesianGrid key="cartesian-grid" strokeDasharray="6 6" vertical={false} stroke="rgba(0,0,0,0.03)" />
                           <XAxis 
+                            key="x-axis"
                             dataKey="month" 
                             axisLine={false} 
                             tickLine={false} 
@@ -323,11 +357,13 @@ export default function Workspace() {
                             dy={10}
                           />
                           <YAxis 
+                            key="y-axis"
                             axisLine={false} 
                             tickLine={false} 
                             tick={{fontSize: 11, fontWeight: 700, fill: '#86868b'}} 
                           />
                           <Tooltip 
+                            key="chart-tooltip"
                             contentStyle={{ 
                               borderRadius: '24px', 
                               border: '1px solid rgba(0,0,0,0.05)', 
@@ -337,41 +373,19 @@ export default function Workspace() {
                             itemStyle={{ fontSize: '12px', fontWeight: 700 }}
                           />
                           <Area 
+                            key="area-points"
                             type="monotone" 
                             dataKey="labelPoints" 
                             name="积分" 
                             stroke="#0071e3" 
                             strokeWidth={3} 
                             fillOpacity={1} 
-                            fill="url(#colorPoints)" 
+                            fill="url(#colorPointsWorkspace)" 
                             animationDuration={1500}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
-                  </div>
-
-                  {/* Key Metrics */}
-                  <div className="grid grid-cols-2 gap-6">
-                    {[
-                      { label: "累计标注量", value: "12,450", unit: "帧", icon: Layers, trend: "+12%", color: "#0071e3" },
-                      { label: "质量评分", value: "98.4", unit: "%", icon: Star, trend: "+2.1%", color: "#34c759" }
-                    ].map((metric, idx) => (
-                      <div key={idx} className="rounded-[32px] border border-black/[0.06] bg-white p-6 shadow-sm hover:scale-[1.02] transition-transform cursor-pointer">
-                        <div className="flex items-center gap-3 text-[#86868b] mb-4">
-                          <metric.icon className="h-4 w-4" style={{ color: metric.color }} />
-                          <span className="text-[11px] font-bold uppercase tracking-wider">{metric.label}</span>
-                        </div>
-                        <div className="flex items-baseline gap-1.5">
-                          <p className="text-3xl font-bold tracking-tight">{metric.value}</p>
-                          <span className="text-xs font-bold text-[#86868b]">{metric.unit}</span>
-                        </div>
-                        <div className="mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${metric.color}10`, color: metric.color }}>
-                          <TrendingUp className="h-3 w-3" />
-                          <span>{metric.trend}</span>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </motion.section>
               )}
@@ -384,28 +398,10 @@ export default function Workspace() {
                   exit={{ opacity: 0, y: -12 }}
                   className="space-y-5"
                 >
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex gap-1.5 p-1 bg-black/[0.04] rounded-full backdrop-blur-sm">
-                      {[
-                        { id: "all", label: "全部" },
-                        { id: "published", label: "已发布" },
-                        { id: "joined", label: "已参与" }
-                      ].map(f => (
-                        <button 
-                          key={f.id}
-                          onClick={() => setTaskFilter(f.id as TaskFilter)}
-                          className={`px-5 py-2 text-[11px] font-bold rounded-full transition-all ${taskFilter === f.id ? "bg-white shadow-md text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {myTasks
                     .filter(task => taskFilter === "all" || task.category === taskFilter)
                     .map(task => (
-                    <div key={task.id} className="group rounded-[32px] border border-black/[0.06] bg-white p-7 transition-all hover:border-[#0071e3]/30 hover:shadow-xl hover:scale-[1.01]">
+                    <div key={`task-row-${task.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-7 transition-all hover:border-[#0071e3]/30 hover:shadow-xl hover:scale-[1.01]">
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-4 mb-5">
@@ -418,10 +414,6 @@ export default function Workspace() {
                             <div className="flex items-center gap-2">
                               <CreditCard className="h-4 w-4 text-[#0071e3]" />
                               <span className="text-[13px] font-bold text-[#0071e3]">{task.reward} 积分</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-[#86868b]" />
-                              <span className="text-[12px] font-medium text-[#86868b]">截止: {task.deadline || "进行中"}</span>
                             </div>
                           </div>
                         </div>
@@ -462,7 +454,7 @@ export default function Workspace() {
                       { id: "purchased", label: "已购入" }
                     ].map(f => (
                       <button 
-                        key={f.id}
+                        key={`ds-f-${f.id}`}
                         onClick={() => setDatasetFilter(f.id as DatasetFilter)}
                         className={`px-5 py-2 text-[11px] font-bold rounded-full transition-all ${datasetFilter === f.id ? "bg-white shadow-md text-[#1d1d1f]" : "text-[#86868b] hover:text-[#1d1d1f]"}`}
                       >
@@ -471,13 +463,15 @@ export default function Workspace() {
                     ))}
                   </div>
 
-                  {myDatasets
+                  {datasets
                     .filter(ds => datasetFilter === "all" || ds.type === datasetFilter)
                     .map(ds => (
-                    <div key={ds.id} className="group rounded-[32px] border border-black/[0.06] bg-white p-6 transition-all hover:border-[#0071e3]/30 hover:shadow-lg">
+                    <div key={`ds-row-${ds.id}`} className="group rounded-[32px] border border-black/[0.06] bg-white p-6 transition-all hover:border-[#0071e3]/30 hover:shadow-lg">
                       <div className="flex gap-5">
-                        <div className="h-16 w-16 shrink-0 rounded-[20px] bg-[#0071e3]/[0.08] flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Database className="h-8 w-8 text-[#0071e3]" />
+                        <div className={`h-16 w-16 shrink-0 rounded-[20px] flex items-center justify-center group-hover:scale-110 transition-transform ${
+                          ds.sourceType === 'external' ? 'bg-[#ff9500]/[0.08]' : 'bg-[#0071e3]/[0.08]'
+                        }`}>
+                          {ds.sourceType === 'external' ? <ExternalLink className="h-8 w-8 text-[#ff9500]" /> : <Database className="h-8 w-8 text-[#0071e3]" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
@@ -490,15 +484,31 @@ export default function Workspace() {
                             <span className="flex items-center gap-1.5"><Layers className="h-3.5 w-3.5" />样本: {ds.samples}</span>
                             {ds.owner && <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{ds.owner}</span>}
                             <span>{ds.date}</span>
+                            {ds.sourceType === 'external' && <span className="flex items-center gap-1.5 text-[#ff9500] font-bold"><Globe className="h-3.5 w-3.5" />委托展示</span>}
                           </div>
                         </div>
                       </div>
                       <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-black/[0.04]">
-                        <button className="px-6 py-2 rounded-xl border border-black/[0.08] text-[12px] font-bold text-[#1d1d1f] hover:bg-black/[0.04] transition-all">
+                        {ds.type === "published" && ds.sourceType !== 'external' && (
+                          <button 
+                            onClick={() => toggleVisibility(ds.id)}
+                            className={`flex items-center gap-2 px-5 py-2 rounded-xl border text-[12px] font-bold transition-all ${
+                              ds.isPublic 
+                                ? "border-black/[0.08] text-[#1d1d1f] hover:bg-black/[0.02]" 
+                                : "border-[#0071e3]/20 bg-[#0071e3]/[0.04] text-[#0071e3] hover:bg-[#0071e3]/[0.08]"
+                            }`}
+                          >
+                            {ds.isPublic ? <><EyeOff className="h-3.5 w-3.5" />设为私有</> : <><Globe className="h-3.5 w-3.5" />公开数据集</>}
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => setSelectedDataset(ds)}
+                          className="px-6 py-2 rounded-xl border border-black/[0.08] text-[12px] font-bold text-[#1d1d1f] hover:bg-black/[0.04] transition-all"
+                        >
                           查看明细
                         </button>
                         <button className="px-6 py-2 rounded-xl bg-[#0071e3] text-white text-[12px] font-bold shadow-[0_4px_12px_rgba(0,113,227,0.2)] hover:opacity-90 transition-all">
-                          进入工作台
+                          去标注
                         </button>
                       </div>
                     </div>
@@ -516,102 +526,138 @@ export default function Workspace() {
                 <h3 className="text-[12px] font-bold text-[#86868b] uppercase tracking-[0.2em]">等级进化</h3>
                 <ShieldCheck className="h-5 w-5 text-[#0071e3]" />
               </div>
-              
-              <div className="space-y-6">
-                <div className="flex justify-between items-end px-1">
-                  <div>
-                    <p className="text-3xl font-bold tracking-tight text-[#1d1d1f]">Lv.4</p>
-                    <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mt-0.5">当前等级</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-[#86868b]">Lv.5</p>
-                    <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest mt-0.5">目标</p>
-                  </div>
-                </div>
-
-                <div className="relative h-2.5 w-full rounded-full bg-black/[0.04] overflow-hidden shadow-inner">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${expPercentage}%` }}
-                    className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full shadow-[0_0_12px_rgba(0,113,227,0.3)]"
-                  />
-                </div>
-
-                <div className="rounded-2xl bg-[#fbfbfd] p-4 border border-black/[0.03]">
-                  <p className="text-[12px] text-[#86868b] font-medium leading-[1.6] text-center">
-                    距离晋升还需 <span className="font-bold text-[#1d1d1f]">{nextLevelExp - currentExp}</span> 经验
-                    <br />
-                    解锁 <span className="text-[#0071e3] font-bold">审核权限</span> 与 <span className="text-[#0071e3] font-bold">2.5x 系数</span>
-                  </p>
-                </div>
+              <div className="relative h-2.5 w-full rounded-full bg-black/[0.04] overflow-hidden shadow-inner mb-4">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${expPercentage}%` }}
+                  className="h-full bg-gradient-to-r from-[#0071e3] to-[#5ac8fa] rounded-full shadow-[0_0_12px_rgba(0,113,227,0.3)]"
+                />
               </div>
-
-              {/* Mini Level Table */}
-              <div className="mt-8 pt-8 border-t border-black/[0.04] space-y-4">
-                <div className="flex items-center gap-2 px-1 mb-2">
-                  <Sparkles className="h-3.5 w-3.5 text-[#ff9500]" />
-                  <h4 className="text-[11px] font-bold text-[#86868b] uppercase tracking-widest">等级特权概览</h4>
-                </div>
-                <div className="space-y-2">
-                  {levelRules.map((rule, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`group flex items-center justify-between p-3 rounded-2xl transition-all duration-300 ${idx === 3 ? 'bg-[#0071e3]/[0.08] border border-[#0071e3]/20 shadow-sm' : 'hover:bg-black/[0.02]'}`}
-                    >
-                      <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[12px] font-bold truncate ${idx === 3 ? 'text-[#0071e3]' : 'text-[#1d1d1f]'}`}>
-                            {rule.level.split(' ')[0]}
-                          </span>
-                          {idx === 3 && (
-                            <div className="h-2 w-2 rounded-full bg-[#0071e3] animate-pulse" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-[#86868b] font-bold">{rule.range}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className={`text-[11px] font-bold whitespace-nowrap ${idx === 3 ? 'text-[#0071e3]' : 'text-[#34c759]'}`}>
-                          {rule.reward.includes('x') ? rule.reward.split(' ').find(s => s.includes('x')) : "特殊权限"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Point History */}
-            <section className="rounded-[32px] border border-black/[0.06] bg-white/80 backdrop-blur-2xl p-7">
-              <div className="flex items-center justify-between mb-8 px-1">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-xl bg-black/[0.04] flex items-center justify-center">
-                    <History className="h-4.5 w-4.5 text-[#86868b]" />
-                  </div>
-                  <h3 className="text-[12px] font-bold text-[#86868b] uppercase tracking-[0.2em]">积分动态</h3>
-                </div>
-                <button className="text-[11px] font-bold text-[#0071e3] hover:underline">全部</button>
-              </div>
-              
-              <div className="space-y-6">
-                {pointHistory.map(item => (
-                  <div key={item.id} className="group relative flex gap-4">
-                    <div className="relative z-10 h-2.5 w-2.5 mt-1.5 rounded-full bg-[#0071e3]/30 shrink-0 group-hover:scale-125 transition-transform" />
-                    {/* Timeline line */}
-                    <div className="absolute left-[5px] top-6 w-[1px] h-10 bg-black/[0.04] last:hidden" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="text-[13px] font-bold text-[#1d1d1f] line-clamp-1 tracking-tight">{item.description}</p>
-                        <span className="text-[12px] font-bold text-[#34c759] ml-2">{item.points}</span>
-                      </div>
-                      <p className="text-[11px] font-medium text-[#86868b]">{item.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-[12px] text-[#86868b] font-medium leading-[1.6] text-center">
+                距离晋升还需 <span className="font-bold text-[#1d1d1f]">{nextLevelExp - currentExp}</span> 经验
+              </p>
             </section>
           </aside>
         </div>
       </div>
+
+      {/* Detail Modal Overlay */}
+      <AnimatePresence>
+        {selectedDataset && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedDataset(null)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl overflow-hidden rounded-[40px] bg-white shadow-2xl"
+            >
+              <div className="p-10">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${selectedDataset.sourceType === 'external' ? 'bg-[#ff9500]/10' : 'bg-[#0071e3]/10'}`}>
+                      {selectedDataset.sourceType === 'external' ? <ExternalLink className="h-6 w-6 text-[#ff9500]" /> : <Database className="h-6 w-6 text-[#0071e3]" />}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold tracking-tight">{selectedDataset.name}</h3>
+                      <p className="text-[13px] font-bold text-[#86868b] uppercase tracking-wider mt-0.5">
+                        {selectedDataset.sourceType === 'external' ? '委托展示数据集' : '机构内生数据集'}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedDataset(null)}
+                    className="h-10 w-10 rounded-full hover:bg-black/[0.04] flex items-center justify-center transition-colors"
+                  >
+                    <X className="h-6 w-6 text-[#86868b]" />
+                  </button>
+                </div>
+
+                <div className="mt-10 space-y-8">
+                  {/* Basic Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { label: "样本规模", value: selectedDataset.samples },
+                      { label: "更新日期", value: selectedDataset.date },
+                      { label: "当前状态", value: selectedDataset.status }
+                    ].map(stat => (
+                      <div key={stat.label} className="rounded-2xl bg-[#fbfbfd] p-4 border border-black/[0.02]">
+                        <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest">{stat.label}</p>
+                        <p className="mt-1 text-sm font-bold text-[#1d1d1f]">{stat.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Trading Attributes */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Settings className="h-4 w-4 text-[#86868b]" />
+                      <h4 className="text-[13px] font-bold text-[#86868b] uppercase tracking-[0.15em]">交易属性配置</h4>
+                    </div>
+                    
+                    {selectedDataset.sourceType === 'external' ? (
+                      <div className="rounded-3xl border border-[#ff9500]/20 bg-[#ff9500]/[0.03] p-6">
+                        <div className="flex items-center gap-3 text-[#ff9500] mb-2">
+                          <Globe className="h-5 w-5" />
+                          <span className="font-bold text-[15px]">委托展示模式</span>
+                        </div>
+                        <p className="text-[13px] text-[#86868b] leading-relaxed">
+                          该数据集已配置为第三方委托展示，点击“去购买”将跳转至外部链接：<br/>
+                          <span className="text-[#ff9500] underline font-medium cursor-pointer">https://oasis-brain.org/buy/D003</span>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-3">
+                        {[
+                          { label: "支持购买下载", enabled: selectedDataset.attributes?.isDownloadable, icon: Upload },
+                          { label: "支持发布任务", enabled: selectedDataset.attributes?.isTaskable, icon: Target },
+                          { label: "支持模型训练", enabled: selectedDataset.attributes?.isTrainable, icon: Zap }
+                        ].map(attr => (
+                          <div key={attr.label} className="flex items-center justify-between rounded-2xl bg-[#fbfbfd] p-4 border border-black/[0.02]">
+                            <div className="flex items-center gap-3">
+                              <attr.icon className={`h-4 w-4 ${attr.enabled ? 'text-[#0071e3]' : 'text-[#86868b]/40'}`} />
+                              <span className={`text-sm font-bold ${attr.enabled ? 'text-[#1d1d1f]' : 'text-[#86868b]/40'}`}>{attr.label}</span>
+                            </div>
+                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold ${attr.enabled ? 'bg-[#34c759]/[0.08] text-[#34c759]' : 'bg-black/[0.04] text-[#86868b]'}`}>
+                              {attr.enabled ? '已开启' : '未开启'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-12 flex gap-4">
+                  <button 
+                    onClick={() => setSelectedDataset(null)}
+                    className="flex-1 rounded-full border border-black/[0.08] py-4 text-sm font-bold hover:bg-black/[0.02] transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSelectedDataset(null);
+                      navigate(`/dataset/${selectedDataset.id}`);
+                    }}
+                    className={`flex-1 rounded-full py-4 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] ${
+                      selectedDataset.sourceType === 'external' ? 'bg-[#ff9500] shadow-[#ff9500]/20' : 'bg-[#0071e3] shadow-[#0071e3]/20'
+                    }`}
+                  >
+                    管理商品详情
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

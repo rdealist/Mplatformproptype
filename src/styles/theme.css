@@ -692,3 +692,41 @@
     box-shadow: 0 2px 12px rgba(10, 132, 255, 0.6);
   }
 }
+
+/* Silent Scrollbar */
+.silent-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+.silent-scroll:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark .silent-scroll:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.silent-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.silent-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.silent-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+.silent-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark .silent-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}

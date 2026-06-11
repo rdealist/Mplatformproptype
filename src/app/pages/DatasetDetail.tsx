@@ -254,7 +254,7 @@ export default function DatasetDetail() {
     'ECG': `本数据集包含长程与短程心电图记录，采样率标准化为 500 Hz，覆盖多种心律类型。每条记录均附带临床诊断标签与波形标注（P/QRS/T），适用于心律失常检测、心脏健康分级及可穿戴设备算法验证。`,
     '内窥镜': `本数据集包含高清内窥镜视频帧及静态影像，标注内容包含病变区域的分割掩码与分类标签。所有数据来自真实内镜检查流程，场景多样，包含正常黏膜、息肉、溃疡等多种形态，适用于 CADe 与 CADx 模型开发。`,
     '眼科影像': `本数据集包含多中心采集的眼科影像，图像质量经自动化评分系统筛选，清晰度均达到临床可用标准。标注由眼科专科医师完成，包含疾病分级、病灶定位及视盘/黄斑区域标注，适用于眼底 AI 筛查模型开发。`,
-    '皮肤镜': `本数据集包含标准化采集的皮肤镜影像，覆盖多种皮肤病变类型。每张图像附带 ISIC 标准分类标签及像素级分割掩码，由皮肤科主治医师审核。适用于黑色素瘤筛查、良恶性分类及辅助诊断模型训练。`,
+    '皮肤镜': `本数据集包含标准化采集的皮肤镜影像，覆盖多种皮肤病变类型。每张图像附带 ISIC 标准分类标签及像素级分割掩码，由皮肤科主治医师审核。适用于���色素瘤筛查、良恶性分类及辅助诊断模型训练。`,
   };
 
   const desc = descriptions[dataset.modality] ?? descriptions['CT'];
@@ -262,7 +262,6 @@ export default function DatasetDetail() {
   const metaRows = [
     { label: '成像模态', value: dataset.subtitle },
     { label: '解剖部位', value: dataset.anatomy.join('、') },
-    { label: '适应症', value: dataset.indication.join('、') },
     { label: '样本规模', value: dataset.samples ?? '—' },
     { label: '数据集大小', value: dataset.size ?? '—' },
     { label: '文件格式', value: extras.format },
@@ -407,7 +406,16 @@ export default function DatasetDetail() {
                   {purchaseMode === 'research' ? '适用于学术研究、非商业论文及学术竞赛' : '适用于商业产品研发、SaaS 服务及临床落地'}
                 </p>
 
-                {purchased ? (
+                {dataset.source.type === 'external' ? (
+                  <a
+                    href="https://www.oasis-brain.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center rounded-full bg-[#ff9500] py-4 text-sm font-medium text-white shadow-[0_4px_12px_rgba(255,149,0,0.3)] transition-all duration-200 hover:bg-[#e68600] hover:shadow-[0_6px_16px_rgba(255,149,0,0.4)] active:scale-[0.98]"
+                  >
+                    去购买
+                  </a>
+                ) : purchased ? (
                   <div className="flex items-center justify-center gap-2 rounded-full bg-[#34c759]/[0.08] py-4 text-sm font-medium text-[#34c759]">
                     <CheckCircle2 className="h-5 w-5" strokeWidth={2} />
                     购买成功，已加入工作台
@@ -452,7 +460,7 @@ export default function DatasetDetail() {
                   <span className="text-sm font-medium text-[#1d1d1f]">适用任务</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[...dataset.tags, ...dataset.indication].filter((v, i, a) => a.indexOf(v) === i).map(tag => (
+                  {dataset.tags.filter((v, i, a) => a.indexOf(v) === i).map(tag => (
                     <span key={tag} className="rounded-full bg-black/[0.04] px-3 py-1 text-xs font-medium text-[#1d1d1f]">
                       {tag}
                     </span>

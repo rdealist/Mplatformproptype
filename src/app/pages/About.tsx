@@ -23,6 +23,7 @@ import {
   Cpu,
   Layout,
   MessageSquare,
+  Activity,
 } from "lucide-react";
 import { useState } from "react";
 import { useT } from "../i18n/useT";
@@ -31,6 +32,7 @@ import { ScrollReveal } from "../components/ScrollReveal";
 import { Card3D } from "../components/Card3D";
 import { MagneticButton } from "../components/MagneticButton";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router";
 
 import heroBg from "../../imports/首页/05ad9eeb81757c1fdde06315059981c587ad083f.png";
 import mockupImg from "../../imports/image.png"; // Assuming this is the annotation platform mockup
@@ -88,6 +90,7 @@ const annotationFeatureColors = ["#0071e3", "#0071e3", "#0071e3", "#0071e3"];
 export default function About() {
   const [activePersona, setActivePersona] = useState(0);
   const t = useT();
+  const navigate = useNavigate();
 
   const statsData = [
     { icon: Database, value: 124.6, decimals: 1, separator: false, suffix: "万", label: t.hero.stats[0].label },
@@ -140,13 +143,29 @@ export default function About() {
               transition={{ duration: 0.45, ease: [0.25, 0.4, 0.25, 1] }}
               className="mt-10 text-center"
             >
-              <p className="mb-4 text-sm font-medium text-[#0071e3]">{t.hero.personas[activePersona].tag}</p>
               <h1 className="whitespace-pre-line text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
                 {t.hero.personas[activePersona].headline}
               </h1>
               <p className="mx-auto mt-6 max-w-[680px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
                 {t.hero.personas[activePersona].sub}
               </p>
+              
+              {/* 行动点按钮 (CTA) */}
+              <div className="mt-10 flex items-center justify-center gap-4">
+                <button 
+                  onClick={() => navigate(t.hero.personas[activePersona].cta1Path || '/task-market')}
+                  className="flex items-center gap-2 rounded-full bg-[#0071e3] px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-[#0071e3]/20 transition-all hover:opacity-90 active:scale-[0.95]"
+                >
+                  {t.hero.personas[activePersona].cta1}
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+                <button 
+                  onClick={() => navigate(t.hero.personas[activePersona].cta2Path || '/about')}
+                  className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/50 px-8 py-4 text-lg font-semibold text-[#1d1d1f] backdrop-blur-sm transition-all hover:bg-white hover:border-[#0071e3]/20 active:scale-[0.95]"
+                >
+                  {t.hero.personas[activePersona].cta2}
+                </button>
+              </div>
             </motion.div>
           </AnimatePresence>
 
@@ -191,7 +210,7 @@ export default function About() {
           <div className="mt-16 grid grid-cols-3 gap-6">
             {t.pain.items.map((p, i) => (
               <ScrollReveal key={p.audience} delay={0.1 * i}>
-                <div className="group rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300 hover:border-[#0071e3]/20 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                <div className="group rounded-3xl border border-black/[0.08] bg-white p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300 hover:border-[#0071e3]/20 hover:shadow-[0_8px_30px_rgba(0,113,227,0.08)]">
                   <span className="inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1 text-xs font-medium text-[#0071e3]">
                     {p.audience}
                   </span>
@@ -543,91 +562,76 @@ export default function About() {
         </div>
       </section>
 
-      {/* ⑧ 真实案例 (Case Studies) */}
-      <section className="bg-[#fbfbfd] px-20 py-28">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="text-center mb-16">
-            <ScrollReveal>
-              <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
-                <span className="text-sm font-medium text-[#0071e3]">{t.cases.badge}</span>
-              </div>
-              <h2 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em]">
-                {t.cases.title}
-              </h2>
-              <p className="mx-auto mt-6 max-w-[640px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
-                {t.cases.sub}
-              </p>
-            </ScrollReveal>
-          </div>
-
-          <div className="grid grid-cols-3 gap-8">
-            {caseStudies.map((cs, i) => (
-              <ScrollReveal key={cs.org} delay={0.1 * i}>
-                <div className="group flex flex-col h-full rounded-3xl border border-black/[0.08] bg-white p-10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-2xl">
-                  <div className="flex items-center justify-between mb-8">
-                    <span className="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: cs.tagColor + '14', color: cs.tagColor }}>
-                      {cs.tag}
-                    </span>
-                    <MessageSquare className="h-5 w-5 text-[#86868b] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#1d1d1f] mb-4">{cs.result}</h3>
-                  <p className="text-sm leading-[1.6] text-[#86868b] mb-10 flex-1">{cs.story}</p>
-                  
-                  <div className="space-y-4 pt-8 border-t border-black/[0.04]">
-                    {cs.metrics.map(m => (
-                      <div key={m.label} className="flex items-center justify-between text-xs">
-                        <span className="text-[#86868b]">{m.label}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#ff3b30] line-through opacity-50">{m.before}</span>
-                          <ArrowRight className="h-3 w-3 text-[#86868b]" />
-                          <span className="font-bold text-[#34c759]">{m.after}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="mt-8 text-xs font-bold text-[#1d1d1f] flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[#0071e3]" />
-                    {cs.org}
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
+      {/* ⑧ 底部 CTA */}
+      <section className="relative overflow-hidden bg-[#1d1d1f] px-20 py-32 text-center text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0071e3]/20 via-transparent to-transparent opacity-40" />
+        <div className="relative mx-auto max-w-[1280px]">
+          <ScrollReveal>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-[#0071e3]">{t.cta.eyebrow}</p>
+            <h2 className="text-6xl font-semibold leading-[1.1] tracking-[-0.02em]">
+              {t.cta.title}
+            </h2>
+            <p className="mx-auto mt-8 max-w-[640px] text-[24px] font-medium leading-[1.4] text-[#86868b]">
+              {t.cta.sub}
+            </p>
+            <div className="mt-12 flex items-center justify-center gap-6">
+              <MagneticButton className="flex items-center gap-2 rounded-full bg-[#0071e3] px-10 py-5 text-xl font-semibold text-white shadow-2xl shadow-[#0071e3]/40 transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/publish-task')}>
+                {t.cta.btn1}
+                <ArrowRight className="h-6 w-6" />
+              </MagneticButton>
+              <button className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-10 py-5 text-xl font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 active:scale-95">
+                {t.cta.btn2}
+              </button>
+            </div>
+            <p className="mt-8 text-sm font-medium text-[#424245]">
+              {t.cta.footnote}
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* ⑨ CTA Section */}
-      <section className="bg-white px-20 py-28 overflow-hidden relative">
+      {/* Footer */}
+      <footer className="bg-white px-20 pt-24 pb-12">
         <div className="mx-auto max-w-[1280px]">
-          <div className="relative rounded-[48px] bg-[#1d1d1f] p-20 text-center overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#0071e3] opacity-20 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#0071e3] opacity-10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
-            
-            <div className="relative z-10">
-              <ScrollReveal>
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#0071e3] mb-6">{t.cta.eyebrow}</p>
-                <h2 className="text-5xl md:text-6xl font-semibold leading-tight text-white mb-8">
-                  {t.cta.title}
-                </h2>
-                <p className="mx-auto mb-12 max-w-[640px] text-xl text-[#86868b]">
-                  {t.cta.sub}
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <MagneticButton className="rounded-full bg-[#0071e3] px-10 py-5 text-xl font-bold text-white shadow-2xl shadow-[#0071e3]/40 transition-all hover:opacity-90 active:scale-[0.98]">
-                    {t.cta.btn1}
-                  </MagneticButton>
-                  <button className="text-xl font-bold text-white hover:text-[#0071e3] transition-colors">
-                    {t.cta.btn2}
-                  </button>
+          <div className="grid grid-cols-5 gap-12 border-b border-black/[0.06] pb-24">
+            <div className="col-span-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0071e3] shadow-lg shadow-[#0071e3]/20">
+                  <Activity className="h-6 w-6 text-white" strokeWidth={2.5} />
                 </div>
-                <p className="mt-12 text-sm text-[#86868b]">{t.cta.footnote}</p>
-              </ScrollReveal>
+                <span className="text-[22px] font-bold tracking-tight text-[#1d1d1f]">iMedLoop</span>
+              </div>
+              <p className="mt-8 whitespace-pre-line text-lg font-medium leading-[1.5] text-[#86868b]">
+                {t.footer.tagline}
+              </p>
+            </div>
+            {t.footer.cols.map((col: any) => (
+              <div key={col[0]}>
+                <h4 className="text-sm font-bold tracking-wider text-[#1d1d1f] uppercase mb-8">{col[0]}</h4>
+                <ul className="space-y-4">
+                  {col.slice(1).map((link: string) => (
+                    <li key={link}>
+                      <a href="#" className="text-[15px] font-medium text-[#86868b] transition-colors hover:text-[#0071e3]">{link}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 flex items-center justify-between">
+            <p className="text-[13px] font-medium text-[#86868b]">{t.footer.copyright}</p>
+            <div className="flex items-center gap-8">
+              <a href="#" className="text-[13px] font-medium text-[#86868b] hover:text-[#1d1d1f]">Privacy Policy</a>
+              <a href="#" className="text-[13px] font-medium text-[#86868b] hover:text-[#1d1d1f]">Terms of Service</a>
+              <div className="flex gap-4">
+                <div className="h-8 w-8 rounded-full bg-black/[0.04] flex items-center justify-center text-[#1d1d1f] hover:bg-black/[0.08] transition-colors cursor-pointer">
+                  <MessageSquare className="h-4 w-4" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </footer>
     </main>
   );
 }
