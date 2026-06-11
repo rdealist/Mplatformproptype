@@ -960,7 +960,7 @@ export default function ModelService() {
                     iMedLoop Playground
                   </motion.h2>
                   <p className="text-sm text-[#86868b] max-w-lg mx-auto leading-relaxed font-medium">
-                    统一的模型服务工作台。在这里您可以调试 Prompt、管理 API 密钥并快速集成 AI 能力到您的医疗科研流程中。
+                    一站式模型服务工作台。在这里您可以调试 Prompt、管理 API 密钥并快速集成 AI 能力到您的医疗科研流程中。
                   </p>
                 </div>
                 
@@ -1095,49 +1095,49 @@ export default function ModelService() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {filteredModels.map((model) => (
                     <motion.div
                       key={model.id}
                       whileHover={{ y: -4 }}
-                      className="group relative flex flex-col rounded-[32px] border border-black/[0.06] bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-[#0071e3]/20"
+                      className="group relative flex flex-col rounded-[28px] border border-black/[0.06] bg-white p-5 shadow-sm transition-all hover:shadow-xl hover:border-[#0071e3]/20"
                     >
-                      <div className="flex items-start gap-5 mb-6">
-                        <div className="h-14 w-14 rounded-2xl bg-[#fbfbfd] border border-black/[0.04] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#0071e3]/30 transition-all">
-                          <Cpu className="h-7 w-7 text-[#0071e3]" strokeWidth={1.5} />
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="h-12 w-12 rounded-xl bg-[#fbfbfd] border border-black/[0.04] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#0071e3]/30 transition-all">
+                          <Cpu className="h-6 w-6 text-[#0071e3]" strokeWidth={1.5} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-bold text-[#1d1d1f] leading-tight break-words mb-2">{model.name}</h3>
-                          <p className="text-xs text-[#86868b] leading-relaxed line-clamp-2 font-medium">
+                          <h3 className="text-sm font-bold text-[#1d1d1f] leading-tight break-words mb-1">{model.name}</h3>
+                          <p className="text-[11px] text-[#86868b] leading-snug line-clamp-2 font-medium">
                             {model.description}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 mb-4 bg-[#f5f5f7] rounded-[24px] p-4 border border-black/[0.02]">
+                      <div className="flex flex-col gap-1.5 mb-4 bg-[#f5f5f7] rounded-[20px] p-3 border border-black/[0.02]">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-[#86868b]">输入价格</span>
-                          <span className="text-[11px] font-bold text-[#1d1d1f]">{model.priceInput}</span>
+                          <span className="text-[9px] font-bold text-[#86868b]">输入价格</span>
+                          <span className="text-[10px] font-bold text-[#1d1d1f]">{model.priceInput}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-[#86868b]">输出价格</span>
-                          <span className="text-[11px] font-bold text-[#1d1d1f]">{model.priceOutput}</span>
+                          <span className="text-[9px] font-bold text-[#86868b]">输出价格</span>
+                          <span className="text-[10px] font-bold text-[#1d1d1f]">{model.priceOutput}</span>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 mb-8 px-1">
-                        <span className="px-2 py-0.5 rounded-md bg-black/[0.04] text-[9px] font-bold text-[#86868b] uppercase tracking-wider">{model.vendor}</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-4 px-1">
+                        <span className="px-1.5 py-0.5 rounded bg-black/[0.04] text-[8px] font-bold text-[#86868b] uppercase tracking-wider">{model.vendor}</span>
                         {model.isNew && (
-                          <span className="rounded-full bg-[#34c759]/10 px-2 py-0.5 text-[9px] font-bold text-[#34c759] uppercase tracking-wider">
+                          <span className="rounded-full bg-[#34c759]/10 px-1.5 py-0.5 text-[8px] font-bold text-[#34c759] uppercase tracking-wider">
                             New
                           </span>
                         )}
                       </div>
 
-                      <div className="mt-auto pt-5 border-t border-black/[0.04]">
+                      <div className="mt-auto pt-4 border-t border-black/[0.04]">
                         <button 
                           onClick={() => setDetailModelId(model.id)}
-                          className="w-full px-6 py-3 rounded-xl bg-black/[0.04] text-[11px] font-bold text-[#1d1d1f] hover:bg-black/[0.08] active:scale-[0.98] transition-all"
+                          className="w-full px-5 py-2.5 rounded-xl bg-black/[0.04] text-[11px] font-bold text-[#1d1d1f] hover:bg-black/[0.08] active:scale-[0.98] transition-all"
                         >
                           查看详情
                         </button>
@@ -1558,11 +1558,11 @@ export default function ModelService() {
                     <div className="space-y-6">
                       <div className="flex items-center gap-4">
                         <div className="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">2</div>
-                        <h2 className="text-xl font-bold text-[#1d1d1f]">发起首个请求</h2>
+                        <h2 className="text-xl font-bold text-[#1d1d1f]">��起首个请求</h2>
                       </div>
                       <div className="pl-12 space-y-6">
                         <p className="text-sm text-[#424245] leading-relaxed">
-                          使用标准 HTTP POST 请求调用对话接口。接口端点为：
+                          使用标准 HTTP POST 请求调用对话接口。接口端��为：
                         </p>
                         <div className="rounded-[24px] bg-[#1d1d1f] shadow-2xl overflow-hidden">
                           <div className="flex items-center justify-between px-5 py-3 bg-white/[0.05] border-b border-white/[0.05]">
@@ -1760,27 +1760,28 @@ curl https://api.imedloop.com/v1/chat/completions \\
       </main>
 
       {/* ── Right Floating Settings Panel ── */}
-      <div className={`flex flex-col shrink-0 z-20 transition-all duration-400 ease-in-out ${isRightSidebarCollapsed ? "h-fit" : "h-full"}`} style={{ width: isRightSidebarCollapsed ? '56px' : '340px' }}>
-        <aside
-          className={`flex h-full flex-col rounded-[32px] border border-black/[0.06] bg-white/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden`}
-        >
-          <div className="flex h-14 items-center justify-between px-4 border-b border-black/[0.04] shrink-0">
-            {!isRightSidebarCollapsed && (
-              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#86868b] px-2">参数配置</p>
-            )}
-            <button
-              onClick={() => setIsRightSidebarCollapsed(!isRightSidebarCollapsed)}
-              className={`p-2 rounded-xl hover:bg-black/[0.04] text-[#86868b] transition-colors ${isRightSidebarCollapsed ? "mx-auto" : ""}`}
-            >
-              {isRightSidebarCollapsed ? (
-                <Wrench className="h-4.5 w-4.5" />
-              ) : (
-                <ChevronRight className="h-4.5 w-4.5" />
+      {(activeSection === "home") && (
+        <div className={`flex flex-col shrink-0 z-20 transition-all duration-400 ease-in-out ${isRightSidebarCollapsed ? "h-fit" : "h-full"}`} style={{ width: isRightSidebarCollapsed ? '56px' : '340px' }}>
+          <aside
+            className={`flex h-full flex-col rounded-[32px] border border-black/[0.06] bg-white/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden`}
+          >
+            <div className="flex h-14 items-center justify-between px-4 border-b border-black/[0.04] shrink-0">
+              {!isRightSidebarCollapsed && (
+                <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#86868b] px-2">参数配置</p>
               )}
-            </button>
-          </div>
+              <button
+                onClick={() => setIsRightSidebarCollapsed(!isRightSidebarCollapsed)}
+                className={`p-2 rounded-xl hover:bg-black/[0.04] text-[#86868b] transition-colors ${isRightSidebarCollapsed ? "mx-auto" : ""}`}
+              >
+                {isRightSidebarCollapsed ? (
+                  <Wrench className="h-4.5 w-4.5" />
+                ) : (
+                  <ChevronRight className="h-4.5 w-4.5" />
+                )}
+              </button>
+            </div>
 
-          <div className={`flex-1 overflow-y-auto min-w-0 ${isRightSidebarCollapsed ? 'hidden' : 'block'}`}>
+            <div className={`flex-1 overflow-y-auto min-w-0 ${isRightSidebarCollapsed ? 'hidden' : 'block'}`}>
             <div className="p-6 space-y-8">
               {/* One-click config */}
               <button 
@@ -1924,6 +1925,7 @@ curl https://api.imedloop.com/v1/chat/completions \\
           </div>
         </aside>
       </div>
+      )}
     </div>
   );
 }

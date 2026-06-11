@@ -102,11 +102,11 @@ export default function Profile() {
       <section className="px-20 py-28">
         <div className="mx-auto max-w-[800px]">
           {/* 页面标题 */}
-          <div className="mb-16">
-            <h1 className="text-[48px] font-semibold leading-[1.16] tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]">
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
               个人中心
             </h1>
-            <p className="mt-4 text-sm text-[#86868b] dark:text-[#98989d]">
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               管理您的身份认证、联系方式及专业资质
             </p>
           </div>

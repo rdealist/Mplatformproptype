@@ -146,9 +146,9 @@ export default function PublishTask() {
             <span className="text-sm font-bold tracking-tight">返回工作台</span>
           </button>
 
-          <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold tracking-tight">发布标注需求</h1>
-            <p className="mt-4 text-[17px] font-medium text-[#86868b]">
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">发布标注需求</h1>
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               简单三步，快速开启您的医疗数据标注任务
             </p>
           </div>

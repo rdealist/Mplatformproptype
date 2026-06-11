@@ -97,15 +97,17 @@ export default function FAQ() {
       <section className="px-[80px] pt-[64px] pb-[80px]">
         <div className="mx-auto max-w-[1280px]">
           <ScrollReveal>
-            <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
-              <span className="text-sm font-medium text-[#0071e3]">{t.faq.badge}</span>
+            <div className="text-center">
+              <div className="mb-4 inline-flex rounded-full bg-[#0071e3]/[0.08] px-3 py-1">
+                <span className="text-sm font-medium text-[#0071e3]">{t.faq.badge}</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
+                {t.faq.title}
+              </h1>
+              <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
+                {t.faq.sub} <span className="font-semibold text-[#0071e3]">team@m-platform.cn</span>{t.faq.contactSuffix}
+              </p>
             </div>
-            <h1 className="whitespace-pre-line text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
-              {t.faq.title}
-            </h1>
-            <p className="mt-6 max-w-[640px] text-[21px] font-medium leading-[1.52] text-[#86868b]">
-              {t.faq.sub} <span className="font-semibold text-[#0071e3]">team@m-platform.cn</span>{t.faq.contactSuffix}
-            </p>
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>

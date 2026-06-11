@@ -72,11 +72,11 @@ export default function Ranking() {
         <div className="mx-auto max-w-[1280px]">
 
           {/* 页面标题 */}
-          <div className="mb-12">
-            <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
               专家排行榜
             </h1>
-            <p className="mt-4 text-[21px] font-medium leading-[1.52] text-[#86868b]">
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               平台贡献者实时排名，数据每日更新
             </p>
           </div>

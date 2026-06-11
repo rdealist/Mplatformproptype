@@ -57,14 +57,14 @@ export default function DataMarket() {
 
   return (
     <main className="min-h-screen bg-[#fbfbfd] text-[#1d1d1f] antialiased">
-      <section className="px-[80px] pt-[120px] pb-[60px]">
+      <section className="px-[80px] pt-[100px] pb-[60px]">
         <div className="mx-auto max-w-[1280px]">
-          <div className="mb-16">
+          <div className="mb-16 text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[64px] font-semibold leading-[1.05] tracking-[-0.03em] text-[#1d1d1f]"
+              className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]"
             >
               {t.dataMarket.title}
             </motion.h1>
@@ -72,26 +72,29 @@ export default function DataMarket() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-8 max-w-[800px] text-[28px] font-medium leading-[1.3] tracking-[-0.01em] text-[#86868b]"
+              className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]"
             >
               {t.dataMarket.sub}
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-4 gap-12">
+          <div className="grid grid-cols-4 gap-6">
             {stats.map((stat, idx) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + idx * 0.1, duration: 0.8 }}
-                className="group relative flex flex-col items-start"
+                className="rounded-[24px] border border-black/[0.05] bg-white p-5 shadow-sm hover:shadow-md transition-all group"
               >
-                <div className="mb-3 text-[12px] font-bold tracking-[0.2em] text-[#86868b] uppercase">
-                  {stat.label}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-8 w-8 rounded-[10px] flex items-center justify-center bg-[#0071e3]/[0.06]">
+                    <div className="h-1.5 w-1.5 rounded-full bg-[#0071e3]" />
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#86868b]">{stat.label}</p>
                 </div>
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-[56px] font-semibold leading-none tracking-[-0.04em] text-[#1d1d1f] transition-all duration-500 group-hover:text-[#0071e3] origin-left group-hover:scale-[1.03]">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-[#1d1d1f] tracking-tight">
                     <CountUpAnimation
                       end={stat.value}
                       decimals={stat.decimals}
@@ -100,7 +103,7 @@ export default function DataMarket() {
                       duration={2000}
                     />
                   </span>
-                  <span className="text-[20px] font-semibold text-[#86868b] group-hover:text-[#1d1d1f] transition-colors duration-500">
+                  <span className="text-[10px] font-bold text-[#86868b]">
                     {stat.unit}
                   </span>
                 </div>

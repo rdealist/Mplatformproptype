@@ -288,8 +288,8 @@ export default function DatasetDetail() {
           </button>
 
           {/* Title block */}
-          <div className="mb-10">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-16 text-center">
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
               <span
                 className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
                 style={{ background: src.bg, color: src.color }}
@@ -308,10 +308,10 @@ export default function DatasetDetail() {
                 </span>
               ))}
             </div>
-            <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
               {dataset.title}
             </h1>
-            <p className="mt-3 text-[21px] font-medium leading-[1.52] text-[#86868b]">{dataset.subtitle}</p>
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">{dataset.subtitle}</p>
           </div>
 
           {/* Main two-column layout */}

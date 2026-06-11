@@ -46,7 +46,7 @@ const allTasks: Task[] = [
   { id: 'T007', category: '审核任务', title: '皮肤病变分类审核',         description: '审核皮肤镜影像分类标注结果，核实色素痣、脂溢性角化病等分类是否准确，标注不规范处重新判定',     type: '分类标注',   modality: '可见光影像',  level: 'Lv1', reward: '1,200',  deadline: '2026-07-30', progress: { current: 0,  total: 30 }, status: '招募中', difficulty: '简单' },
   { id: 'T008', category: '标注任务', title: '息肉检测与分割任务',       description: '对内窥镜肠镜影像中的息肉进行检测与精确分割，标注息肉类型、大小及表面特征，支持肠癌早筛系统',   type: '分割标注',   modality: '可见光影像',  level: 'Lv3', reward: '5,200',  deadline: '2026-07-19', progress: { current: 10, total: 18 }, status: '进行中', difficulty: '中等' },
   { id: 'T009', category: '审核任务', title: '乳腺钼靶病变审核',         description: '对乳腺钼靶影像标注结果进行专家级审核，复核钙化灶、肿块检测框的准确性，输出最终审核意见',       type: '检测标注',   modality: 'X射线',   level: 'Lv5', reward: '4,500',  deadline: '2026-08-05', progress: { current: 2,  total: 8  }, status: '招募中', difficulty: '困难' },
-  { id: 'T010', category: '标注任务', title: '颅内出血CT分割任务',       description: '对颅脑CT影像中的颅内出血区域进行精确分割，区分硬膜下、蛛网膜下腔等不同类型出血，急诊应用场景', type: '分割标注',   modality: '计算机断层扫描',      level: 'Lv5', reward: '10,000', deadline: '2026-07-28', progress: { current: 4,  total: 8  }, status: '进行中', difficulty: '困难' },
+  { id: 'T010', category: '标注任务', title: '颅内出血CT分割任务',       description: '对颅脑CT影像中的颅内出血区域进行精确分割，区分硬膜下、蛛网膜下腔等不同类型出血，急诊应用���景', type: '分割标注',   modality: '计算机断层扫描',      level: 'Lv5', reward: '10,000', deadline: '2026-07-28', progress: { current: 4,  total: 8  }, status: '进行中', difficulty: '困难' },
   { id: 'T011', category: '标注任务', title: '脊柱侧弯角度测量标注',     description: '在脊柱正位X光影像上标注椎体关键点，计算Cobb角以评估脊柱侧弯严重程度，辅助矫形治疗方案制定',   type: '关键点标注', modality: 'X射线',   level: 'Lv3', reward: '4,800',  deadline: '2026-08-01', progress: { current: 1,  total: 15 }, status: '招募中', difficulty: '中等' },
   { id: 'T012', category: '审核任务', title: '胸部X光肺炎分类审核',     description: '对批量肺炎分类标注结果进行复核，确认病毒性肺炎与细菌性肺炎的区分是否符合影像诊断标准',         type: '分类标注',   modality: 'X射线',   level: 'Lv2', reward: '1,500',  deadline: '2026-07-12', progress: { current: 20, total: 30 }, status: '进行中', difficulty: '简单' },
   { id: 'T013', category: '标注任务', title: '前列腺MRI分割任务',       description: '对前列腺多参数MRI影像进行腺体区域分割，标注移行带、外周带及异常信号区域，辅助前列腺癌诊断',     type: '分割标注',   modality: '磁共振',     level: 'Lv5', reward: '8,500',  deadline: '2026-08-10', progress: { current: 0,  total: 10 }, status: '招募中', difficulty: '困难' },
@@ -123,11 +123,11 @@ export default function TaskMarket() {
   return (
     <main className="min-h-screen bg-[#fbfbfd] text-[#1d1d1f] antialiased">
       {/* 顶部标题区 */}
-      <section className="px-[80px] pt-[64px] pb-[20px]">
+      <section className="px-[80px] pt-[80px] pb-[40px]">
         <div className="mx-auto max-w-[1280px]">
-          <div className="mb-8">
-            <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">{t.taskMarket.title}</h1>
-            <p className="mt-4 text-[21px] font-medium leading-[1.52] text-[#86868b]">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">{t.taskMarket.title}</h1>
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               {t.taskMarket.sub}
             </p>
           </div>

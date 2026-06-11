@@ -284,11 +284,11 @@ export default function Community() {
       {/* 顶部标题区 */}
       <section className="px-20 py-20">
         <div className="mx-auto max-w-[1280px]">
-          <div className="mb-12">
-            <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em]">
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
               医学讨论社区
             </h1>
-            <p className="mt-4 text-[21px] font-medium leading-[1.52] text-[#86868b]">
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               学习提高、病例研判、高端论道
             </p>
           </div>

@@ -36,7 +36,7 @@ const allTasks: Task[] = [
   { id: 'T011', category: '标注任务', title: '脊柱侧弯角度测量标注',     description: '在脊柱正位X光影像上标注椎体关键点，计算Cobb角以评估脊柱侧弯严重程度，辅助矫形治疗方案制定',   type: '关键点标注', modality: 'X-Ray',   level: 'Lv3', reward: '4,800',  deadline: '2026-08-01', progress: { current: 1,  total: 15 }, status: '招募中', difficulty: '中等' },
   { id: 'T012', category: '审核任务', title: '胸部X光肺炎分类审核',     description: '对批量肺炎分类标注结果进行复核，确认病毒性肺炎与细菌性肺炎的区分是否符合影像诊断标准',         type: '分类标注',   modality: 'X-Ray',   level: 'Lv2', reward: '1,500',  deadline: '2026-07-12', progress: { current: 20, total: 30 }, status: '进行中', difficulty: '简单' },
   { id: 'T013', category: '标注任务', title: '前列腺MRI分割任务',       description: '对前列腺多参数MRI影像进行腺体区域分割，标注移行带、外周带及异常信号区域，辅助前列腺癌诊断',     type: '分割标注',   modality: 'MRI',     level: 'Lv5', reward: '8,500',  deadline: '2026-08-10', progress: { current: 0,  total: 10 }, status: '招募中', difficulty: '困难' },
-  { id: 'T014', category: '标注任务', title: '心电图节律分类标注',       description: '对12导联心电图信号进行心律失常分类标注，识别房颤、室速等多种节律异常，构建心律识别训练集',     type: '分类标注',   modality: 'ECG',     level: 'Lv3', reward: '4,500',  deadline: '2026-07-17', progress: { current: 14, total: 20 }, status: '进行中', difficulty: '中等' },
+  { id: 'T014', category: '标注任务', title: '心电图节律分类标注',       description: '对12导联心电图信号进行心律失常分类标注，识别房颤、室速等多种节律异常，构建心律识别训练集',     type: '分��标注',   modality: 'ECG',     level: 'Lv3', reward: '4,500',  deadline: '2026-07-17', progress: { current: 14, total: 20 }, status: '进行中', difficulty: '中等' },
   { id: 'T015', category: '标注任务', title: '腹腔镜手术操作标注',       description: '对腹腔镜手术视频中的操作步骤进行时序标注，识别切割、缝合、止血等关键动作，支持手术AI训练',     type: '视频标注',   modality: '内窥镜',  level: 'Lv6', reward: '12,000', deadline: '2026-08-15', progress: { current: 0,  total: 5  }, status: '招募中', difficulty: '困难' },
   { id: 'T016', category: '标注任务', title: '视盘检测与分割任务',       description: '在眼底影像中检测并精确分割视盘区域，标注视盘边界、杯盘比，辅助青光眼筛查与随访管理',           type: '分割标注',   modality: '眼科影像', level: 'Lv3', reward: '5,000', deadline: '2026-07-23', progress: { current: 9,  total: 15 }, status: '进行中', difficulty: '中等' },
   { id: 'T017', category: '审核任务', title: '肾脏超声结石检测审核',     description: '对肾脏超声结石检测标注批次进行审核，核验结石坐标及大小标注是否准确，审核通过后进入数据入库流程', type: '检测标注',   modality: 'US',      level: 'Lv2', reward: '1,400',  deadline: '2026-07-14', progress: { current: 22, total: 30 }, status: '进行中', difficulty: '简单' },
@@ -86,7 +86,7 @@ const requirements: Record<string, string[]> = {
     '不连续事件段用「空白段」标记，不得省略',
   ],
   '文本标注': [
-    '按照实体标注规范对文本中的病变部位、性质等进行标记',
+    '按照实体标注规范对文本中的病变���位、性质等进行标记',
     '同一实体出现多次均需标注，不得遗漏',
     '关系标注需准确描述实体间的属性关联',
     '存疑文本段标记「不确定」，由审核专家裁定',
@@ -163,8 +163,8 @@ export default function TaskDetail() {
           </button>
 
           {/* Title block */}
-          <div className="mb-10">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-16 text-center">
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
               <span className={`rounded-full px-3 py-1 text-xs font-medium ${task.category === '审核任务' ? 'bg-[#af52de]/[0.08] text-[#af52de]' : 'bg-[#0071e3]/[0.08] text-[#0071e3]'}`}>
                 {task.category}
               </span>
@@ -174,10 +174,10 @@ export default function TaskDetail() {
               <span className="rounded-full bg-black/[0.04] px-3 py-1 text-xs font-medium text-[#1d1d1f]">{task.type}</span>
               <span className="rounded-full bg-[#0071e3]/[0.08] px-3 py-1 text-xs font-medium text-[#0071e3]">{task.level}+</span>
             </div>
-            <h1 className="text-5xl font-semibold leading-[1.16] tracking-[-0.015em] text-[#1d1d1f]">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
               {task.title}
             </h1>
-            <p className="mt-3 text-[21px] font-medium leading-[1.52] text-[#86868b]">
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
               {task.modality} · {task.type}
             </p>
           </div>

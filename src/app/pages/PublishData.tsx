@@ -90,37 +90,37 @@ export default function PublishData() {
             <span className="text-sm font-bold tracking-tight">返回工作台</span>
           </button>
 
-          <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight">
-                {mode === "native" ? "上传数据集" : "委托平台展示"}
-              </h1>
-              <p className="mt-4 text-[17px] font-medium text-[#86868b]">
-                {mode === "native" 
-                  ? "支持 AI 自动识别与填充，沉浸式完成资产数字化" 
-                  : "配置第三方平台数据集展示，支持站外引流与购买跳转"}
-              </p>
-            </div>
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.2]">
+              {mode === "native" ? "上传数据集" : "委托平台展示"}
+            </h1>
+            <p className="mt-5 mx-auto max-w-2xl text-lg md:text-xl font-medium text-[#86868b] leading-[1.5]">
+              {mode === "native" 
+                ? "支持 AI 自动识别与填充，沉浸式完成资产数字化" 
+                : "配置第三方平台数据集展示，支持站外引流与购买跳转"}
+            </p>
             
-            <div className="flex items-center gap-1 rounded-full bg-black/[0.04] p-1 h-12">
-              <button
-                onClick={() => setMode("native")}
-                className={`flex items-center gap-2 rounded-full px-6 h-full text-sm font-bold transition-all ${
-                  mode === "native" ? "bg-white text-[#0071e3] shadow-sm" : "text-[#86868b] hover:text-[#1d1d1f]"
-                }`}
-              >
-                <Database className="h-4 w-4" />
-                上传数据集
-              </button>
-              <button
-                onClick={() => setMode("external")}
-                className={`flex items-center gap-2 rounded-full px-6 h-full text-sm font-bold transition-all ${
-                  mode === "external" ? "bg-white text-[#ff9500] shadow-sm" : "text-[#86868b] hover:text-[#1d1d1f]"
-                }`}
-              >
-                <ExternalLink className="h-4 w-4" />
-                委托展示
-              </button>
+            <div className="mt-10 flex justify-center">
+              <div className="flex items-center gap-1 rounded-full bg-black/[0.04] p-1 h-12">
+                <button
+                  onClick={() => setMode("native")}
+                  className={`flex items-center gap-2 rounded-full px-6 h-full text-sm font-bold transition-all ${
+                    mode === "native" ? "bg-white text-[#0071e3] shadow-sm" : "text-[#86868b] hover:text-[#1d1d1f]"
+                  }`}
+                >
+                  <Database className="h-4 w-4" />
+                  上传数据集
+                </button>
+                <button
+                  onClick={() => setMode("external")}
+                  className={`flex items-center gap-2 rounded-full px-6 h-full text-sm font-bold transition-all ${
+                    mode === "external" ? "bg-white text-[#ff9500] shadow-sm" : "text-[#86868b] hover:text-[#1d1d1f]"
+                  }`}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  委托展示
+                </button>
+              </div>
             </div>
           </div>
 
@@ -229,7 +229,7 @@ export default function PublishData() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   {/* Modality Selection */}
                   <div>
-                    <label className="mb-4 block text-[11px] font-bold uppercase tracking-[0.15em] text-[#86868b]">成像模态 (Modality)</label>
+                    <label className="mb-4 block text-[11px] font-bold uppercase tracking-[0.15em] text-[#86868b]">成��模态 (Modality)</label>
                     <div className="flex flex-wrap gap-2.5">
                       {MODALITY_OPTIONS.map(opt => (
                         <button
